@@ -32,7 +32,10 @@ type RenderTexture struct {
 // 	depthBuffer: Do you want a depth-buffer attached? (useful only if you're doing 3D OpenGL on the rendertexture)
 func NewRenderTexture(width, height uint, depthbuffer bool) *RenderTexture {
 	//create the render texture
-	renderTexture := &RenderTexture{cptr: C.sfRenderTexture_create(C.uint(width), C.uint(height), goBool2C(depthbuffer))}
+	renderTexture := &RenderTexture{}
+	cstream.ExecAndBlock(func() {
+		renderTexture.cptr = C.sfRenderTexture_create(C.uint(width), C.uint(height), goBool2C(depthbuffer))
+	})
 
 	//view
 	renderTexture.SetView(newViewFromPtr(C.sfRenderTexture_getView(renderTexture.cptr)))
@@ -64,14 +67,18 @@ func (this *RenderTexture) SetActive(active bool) {
 
 // Update the contents of the target texture
 func (this *RenderTexture) Display() {
-	C.sfRenderTexture_display(this.cptr)
+	cstream.Exec(func() {
+		C.sfRenderTexture_display(this.cptr)
+	})
 }
 
 // Clear the rendertexture with the given color
 //
 // 	color: Fill color
 func (this *RenderTexture) Clear(color Color) {
-	C.sfRenderTexture_clear(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfRenderTexture_clear(this.cptr, color.toC())
+	})
 }
 
 // Change the current active view of a render texture
@@ -195,7 +202,11 @@ func (this *RenderTexture) ResetGLStates() {
 
 // Get the target texture of a render texture
 func (this *RenderTexture) GetTexture() *Texture {
-	return &Texture{C.sfRenderTexture_getTexture(this.cptr)}
+	tex := &Texture{}
+	cstream.ExecAndBlock(func() {
+		tex.cptr = C.sfRenderTexture_getTexture(this.cptr)
+	})
+	return tex
 }
 
 // Enable or disable the smooth filter on a render texture

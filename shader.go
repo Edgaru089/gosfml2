@@ -126,9 +126,11 @@ func (this *Shader) destroy() {
 // 	color:  Color to assign
 func (this *Shader) SetColorParameter(name string, color Color) {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
 
-	C.sfShader_setColorParameter(this.toCPtr(), cname, color.toC())
+	cstream.Exec(func() {
+		C.sfShader_setColorParameter(this.toCPtr(), cname, color.toC())
+		defer C.free(unsafe.Pointer(cname))
+	})
 }
 
 // Change a matrix parameter of a shader
@@ -141,9 +143,11 @@ func (this *Shader) SetColorParameter(name string, color Color) {
 // 	transform: Transform to assign
 func (this *Shader) SetTransformParameter(name string, trans Transform) {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
 
-	C.sfShader_setTransformParameter(this.toCPtr(), cname, trans.toC())
+	cstream.Exec(func() {
+		C.sfShader_setTransformParameter(this.toCPtr(), cname, trans.toC())
+		defer C.free(unsafe.Pointer(cname))
+	})
 }
 
 // Change a texture parameter of a shader
@@ -156,9 +160,11 @@ func (this *Shader) SetTransformParameter(name string, trans Transform) {
 // 	texture: Texture to assign
 func (this *Shader) SetTextureParameter(name string, texture *Texture) {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
 
-	C.sfShader_setTextureParameter(this.toCPtr(), cname, texture.cptr)
+	cstream.Exec(func() {
+		C.sfShader_setTextureParameter(this.toCPtr(), cname, texture.cptr)
+		defer C.free(unsafe.Pointer(cname))
+	})
 }
 
 // Change a texture parameter of a shader
@@ -172,9 +178,11 @@ func (this *Shader) SetTextureParameter(name string, texture *Texture) {
 // 	name:   Name of the texture in the shader
 func (this *Shader) SetCurrentTextureParameter(name string) {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
 
-	C.sfShader_setCurrentTextureParameter(this.toCPtr(), cname)
+	cstream.Exec(func() {
+		C.sfShader_setCurrentTextureParameter(this.toCPtr(), cname)
+		defer C.free(unsafe.Pointer(cname))
+	})
 }
 
 // Change a n-components vector parameter of a shader
@@ -183,17 +191,29 @@ func (this *Shader) SetCurrentTextureParameter(name string) {
 // The corresponding parameter in the shader must be a n x 1 vector with n = 1 ... 4.
 func (this *Shader) SetFloatParameter(name string, data ...float32) {
 	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
 
 	switch len(data) {
 	case 1:
-		C.sfShader_setFloatParameter(this.toCPtr(), cname, C.float(data[0]))
+		cstream.Exec(func() {
+			C.sfShader_setFloatParameter(this.toCPtr(), cname, C.float(data[0]))
+			defer C.free(unsafe.Pointer(cname))
+		})
+
 	case 2:
-		C.sfShader_setFloat2Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]))
+		cstream.Exec(func() {
+			C.sfShader_setFloat2Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]))
+			defer C.free(unsafe.Pointer(cname))
+		})
 	case 3:
-		C.sfShader_setFloat3Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]))
+		cstream.Exec(func() {
+			C.sfShader_setFloat3Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]))
+			defer C.free(unsafe.Pointer(cname))
+		})
 	case 4:
-		C.sfShader_setFloat4Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]), C.float(data[3]))
+		cstream.Exec(func() {
+			C.sfShader_setFloat4Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]), C.float(data[3]))
+			defer C.free(unsafe.Pointer(cname))
+		})
 	default:
 		panic("Shader.SetFloatParameter: Invalid amount of data.")
 	}
@@ -207,7 +227,9 @@ func (this *Shader) SetFloatParameter(name string, data ...float32) {
 //
 // 	shader: Shader to bind, can be nil to use no shader
 func BindShader(shader *Shader) {
-	C.sfShader_bind(shader.toCPtr())
+	cstream.ExecAndBlock(func() {
+		C.sfShader_bind(shader.toCPtr())
+	})
 }
 
 // Tell whether or not the system supports shaders

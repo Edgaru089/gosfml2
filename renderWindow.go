@@ -41,7 +41,10 @@ func NewRenderWindow(videoMode VideoMode, title string, style int, contextSettin
 	cs := contextSettings.toC()
 
 	//create the window
-	window = &RenderWindow{cptr: C.sfRenderWindow_createUnicode(videoMode.toC(), (*C.sfUint32)(unsafe.Pointer(&utf32[0])), C.sfUint32(style), &cs)}
+	window = &RenderWindow{}
+	cstream.ExecAndBlock(func() {
+		window.cptr = C.sfRenderWindow_createUnicode(videoMode.toC(), (*C.sfUint32)(unsafe.Pointer(&utf32[0])), C.sfUint32(style), &cs)
+	})
 
 	//create a copy of current view
 	window.SetView(newViewFromPtr(C.sfRenderWindow_getView(window.cptr)))
@@ -133,7 +136,9 @@ func (this *RenderWindow) SetIcon(width, height uint, data []byte) error {
 // returns nil if there are no events left.
 func (this *RenderWindow) PollEvent() Event {
 	cEvent := C.sfEvent{}
-	hasEvent := C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
+	var hasEvent C.sfBool
+
+	hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
 
 	if hasEvent != 0 {
 		return handleEvent(&cEvent)
@@ -156,7 +161,9 @@ func (this *RenderWindow) WaitEvent() Event {
 //
 // 	enabled: true to enable v-sync, false to deactivate
 func (this *RenderWindow) SetVSyncEnabled(enabled bool) {
-	C.sfRenderWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
+	})
 }
 
 // Show or hide the mouse cursor on a render window
@@ -189,8 +196,11 @@ func (this *RenderWindow) SetVisible(visible bool) {
 // 	active: true to activate, false to deactivate
 //
 // return True if operation was successful, false otherwise
-func (this *RenderWindow) SetActive(active bool) bool {
-	return sfBool2Go(C.sfRenderWindow_setActive(this.cptr, goBool2C(active)))
+func (this *RenderWindow) SetActive(active bool) (success bool) {
+	cstream.ExecAndBlock(func() {
+		success = sfBool2Go(C.sfRenderWindow_setActive(this.cptr, goBool2C(active)))
+	})
+	return
 }
 
 // Limit the framerate to a maximum fixed frequency for a render window
@@ -209,14 +219,18 @@ func (this *RenderWindow) SetJoystickThreshold(threshold float32) {
 
 // Display a render window on screen
 func (this *RenderWindow) Display() {
-	C.sfRenderWindow_display(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_display(this.cptr)
+	})
 }
 
 // Clear a render window with the given color
 //
 // 	color: Fill color
 func (this *RenderWindow) Clear(color Color) {
-	C.sfRenderWindow_clear(this.cptr, color.toC())
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_clear(this.cptr, color.toC())
+	})
 }
 
 // Get the current active view of a render window
@@ -234,7 +248,9 @@ func (this *RenderWindow) GetDefaultView() *View {
 // 	view: Pointer to the new view
 func (this *RenderWindow) SetView(view *View) {
 	this.view = view
-	C.sfRenderWindow_setView(this.cptr, view.toCPtr())
+	cstream.Exec(func() {
+		C.sfRenderWindow_setView(this.cptr, view.toCPtr())
+	})
 }
 
 // Get the viewport of a view applied to this target
@@ -321,7 +337,9 @@ func (this *RenderWindow) MapCoordsToPixel(pos Vector2f, view *View) (coords Vec
 // saved and restored). Take a look at the ResetGLStates
 // function if you do so.
 func (this *RenderWindow) PushGLStates() {
-	C.sfRenderWindow_pushGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_pushGLStates(this.cptr)
+	})
 }
 
 // Restore the previously saved OpenGL render states and matrices
@@ -329,7 +347,9 @@ func (this *RenderWindow) PushGLStates() {
 // See the description of pushGLStates to get a detailed
 // description of these functions.
 func (this *RenderWindow) PopGLStates() {
-	C.sfRenderWindow_popGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_popGLStates(this.cptr)
+	})
 }
 
 // Reset the internal OpenGL states so that the target is ready for drawing
@@ -340,7 +360,9 @@ func (this *RenderWindow) PopGLStates() {
 // states needed by SFML are set, so that subsequent RenderWindow.Draw
 // calls will work as expected.
 func (this *RenderWindow) ResetGLStates() {
-	C.sfRenderWindow_resetGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_resetGLStates(this.cptr)
+	})
 }
 
 // Copy the current contents of a render window to an image

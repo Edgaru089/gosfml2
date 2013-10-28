@@ -27,7 +27,7 @@ type View struct {
 //
 // This function creates a default view of (0, 0, 1000, 1000)
 func NewView() *View {
-	view := &View{C.sfView_create()}
+	view := &View{cptr: C.sfView_create()}
 	runtime.SetFinalizer(view, (*View).destroy)
 	return view
 }
@@ -162,7 +162,7 @@ func (this *View) toCPtr() *C.sfView {
 }
 
 func newViewFromPtr(cptr *C.sfView) *View {
-	view := &View{C.sfView_copy(cptr)}
+	view := &View{cptr: C.sfView_copy(cptr)}
 	runtime.SetFinalizer(view, (*View).destroy)
 	return view
 }

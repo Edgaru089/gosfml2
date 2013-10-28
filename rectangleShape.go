@@ -51,7 +51,9 @@ func (this *RectangleShape) destroy() {
 //
 // 	position: New position
 func (this *RectangleShape) SetPosition(pos Vector2f) {
-	C.sfRectangleShape_setPosition(this.cptr, pos.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setPosition(this.cptr, pos.toC())
+	})
 }
 
 // Set the scale factors of a rectangle shape
@@ -62,7 +64,9 @@ func (this *RectangleShape) SetPosition(pos Vector2f) {
 //
 // 	scale: New scale factors
 func (this *RectangleShape) SetScale(scale Vector2f) {
-	C.sfRectangleShape_setScale(this.cptr, scale.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setScale(this.cptr, scale.toC())
+	})
 }
 
 // Set the local origin of a rectangle shape
@@ -76,7 +80,9 @@ func (this *RectangleShape) SetScale(scale Vector2f) {
 //
 // 	origin: New origin
 func (this *RectangleShape) SetOrigin(orig Vector2f) {
-	C.sfRectangleShape_setOrigin(this.cptr, orig.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setOrigin(this.cptr, orig.toC())
+	})
 }
 
 // Set the orientation of a rectangle shape
@@ -87,31 +93,42 @@ func (this *RectangleShape) SetOrigin(orig Vector2f) {
 //
 // 	angle: New rotation, in degrees
 func (this *RectangleShape) SetRotation(rot float32) {
-	C.sfRectangleShape_setRotation(this.cptr, C.float(rot))
+	cstream.Exec(func() {
+		C.sfRectangleShape_setRotation(this.cptr, C.float(rot))
+	})
 }
 
 // Get the orientation of a rectangle shape
 //
 // The rotation is always in the range [0, 360].
-func (this *RectangleShape) GetRotation() float32 {
-	return float32(C.sfRectangleShape_getRotation(this.cptr))
+func (this *RectangleShape) GetRotation() (rotation float32) {
+	cstream.ExecAndBlock(func() {
+		rotation = float32(C.sfRectangleShape_getRotation(this.cptr))
+	})
+	return
 }
 
 // Get the position of a rectangle shape
 func (this *RectangleShape) GetPosition() (position Vector2f) {
-	position.fromC(C.sfRectangleShape_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		position.fromC(C.sfRectangleShape_getPosition(this.cptr))
+	})
 	return
 }
 
 // Get the current scale of a rectangle shap
 func (this *RectangleShape) GetScale() (scale Vector2f) {
-	scale.fromC(C.sfRectangleShape_getScale(this.cptr))
+	cstream.ExecAndBlock(func() {
+		scale.fromC(C.sfRectangleShape_getScale(this.cptr))
+	})
 	return
 }
 
 // Get the local origin of a rectangle shape
 func (this *RectangleShape) GetOrigin() (origin Vector2f) {
-	origin.fromC(C.sfRectangleShape_getOrigin(this.cptr))
+	cstream.ExecAndBlock(func() {
+		origin.fromC(C.sfRectangleShape_getOrigin(this.cptr))
+	})
 	return
 }
 
@@ -120,7 +137,9 @@ func (this *RectangleShape) GetOrigin() (origin Vector2f) {
 // This function adds to the current position of the object,
 // unlike RectangleShape.SetPosition which overwrites it.
 func (this *RectangleShape) Move(offset Vector2f) {
-	C.sfRectangleShape_move(this.cptr, offset.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_move(this.cptr, offset.toC())
+	})
 }
 
 // Scale a rectangle shape
@@ -128,7 +147,9 @@ func (this *RectangleShape) Move(offset Vector2f) {
 // This function multiplies the current scale of the object,
 // unlike RectangleShape.SetScale which overwrites it.
 func (this *RectangleShape) Scale(factor Vector2f) {
-	C.sfRectangleShape_scale(this.cptr, factor.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_scale(this.cptr, factor.toC())
+	})
 }
 
 // Rotate a rectangle shape
@@ -136,7 +157,9 @@ func (this *RectangleShape) Scale(factor Vector2f) {
 // This function adds to the current rotation of the object,
 // unlike RectangleShape.SetRotation which overwrites it.
 func (this *RectangleShape) Rotate(angle float32) {
-	C.sfRectangleShape_rotate(this.cptr, C.float(angle))
+	cstream.Exec(func() {
+		C.sfRectangleShape_rotate(this.cptr, C.float(angle))
+	})
 }
 
 // Change the source texture of a rectangle shape
@@ -149,7 +172,9 @@ func (this *RectangleShape) Rotate(angle float32) {
 // 	texture:   New texture
 // 	resetRect: Should the texture rect be reset to the size of the new texture?
 func (this *RectangleShape) SetTexture(texture *Texture, resetRect bool) {
-	C.sfRectangleShape_setTexture(this.cptr, texture.cptr, goBool2C(resetRect))
+	cstream.Exec(func() {
+		C.sfRectangleShape_setTexture(this.cptr, texture.cptr, goBool2C(resetRect))
+	})
 	this.texture = texture
 }
 
@@ -161,7 +186,9 @@ func (this *RectangleShape) SetTexture(texture *Texture, resetRect bool) {
 //
 // 	rect:  Rectangle defining the region of the texture to display
 func (this *RectangleShape) SetTextureRect(rect IntRect) {
-	C.sfRectangleShape_setTextureRect(this.cptr, rect.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setTextureRect(this.cptr, rect.toC())
+	})
 }
 
 // Get the source texture of a rectangle shape
@@ -173,7 +200,9 @@ func (this *RectangleShape) GetTexture() *Texture {
 
 // Get the sub-rectangle of the texture displayed by a rectangle shape
 func (this *RectangleShape) GetTextureRect() (rect IntRect) {
-	rect.fromC(C.sfRectangleShape_getTextureRect(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfRectangleShape_getTextureRect(this.cptr))
+	})
 	return
 }
 
@@ -188,7 +217,9 @@ func (this *RectangleShape) GetTextureRect() (rect IntRect) {
 //
 // 	color: New color of the shape
 func (this *RectangleShape) SetFillColor(color Color) {
-	C.sfRectangleShape_setFillColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setFillColor(this.cptr, color.toC())
+	})
 }
 
 // Set the outline color of a rectangle shape
@@ -198,7 +229,9 @@ func (this *RectangleShape) SetFillColor(color Color) {
 //
 // 	color: New outline color of the shape
 func (this *RectangleShape) SetOutlineColor(color Color) {
-	C.sfRectangleShape_setOutlineColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setOutlineColor(this.cptr, color.toC())
+	})
 }
 
 // Set the thickness of a rectangle shape's outline
@@ -209,29 +242,39 @@ func (this *RectangleShape) SetOutlineColor(color Color) {
 //
 // 	thickness: New outline thickness
 func (this *RectangleShape) SetOutlineThickness(thickness float32) {
-	C.sfRectangleShape_setOutlineThickness(this.cptr, C.float(thickness))
+	cstream.Exec(func() {
+		C.sfRectangleShape_setOutlineThickness(this.cptr, C.float(thickness))
+	})
 }
 
 // Set the size of a rectangle shape
 func (this *RectangleShape) SetSize(size Vector2f) {
-	C.sfRectangleShape_setSize(this.cptr, size.toC())
+	cstream.Exec(func() {
+		C.sfRectangleShape_setSize(this.cptr, size.toC())
+	})
 }
 
 // Get the size of a rectangle shape
 func (this *RectangleShape) GetSize() (size Vector2f) {
-	size.fromC(C.sfRectangleShape_getSize(this.cptr))
+	cstream.ExecAndBlock(func() {
+		size.fromC(C.sfRectangleShape_getSize(this.cptr))
+	})
 	return
 }
 
 // Get the combined transform of a rectangle shape
 func (this *RectangleShape) GetTransform() (transform Transform) {
-	transform.fromC(C.sfRectangleShape_getTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfRectangleShape_getTransform(this.cptr))
+	})
 	return
 }
 
 // Get the inverse of the combined transform of a rectangle shape
 func (this *RectangleShape) GetInverseTransform() (transform Transform) {
-	transform.fromC(C.sfRectangleShape_getInverseTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfRectangleShape_getInverseTransform(this.cptr))
+	})
 	return
 }
 
@@ -246,24 +289,34 @@ func (this *RectangleShape) GetInverseTransform() (transform Transform) {
 //
 // 	color: New color of the shape
 func (this *RectangleShape) GetFillColor() (color Color) {
-	color.fromC(C.sfRectangleShape_getFillColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfRectangleShape_getFillColor(this.cptr))
+	})
 	return
 }
 
 // Get the outline color of a rectangle shape
 func (this *RectangleShape) GetOutlineColor() (color Color) {
-	color.fromC(C.sfRectangleShape_getOutlineColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfRectangleShape_getOutlineColor(this.cptr))
+	})
 	return
 }
 
 // Get the outline thickness of a rectangle shape
-func (this *RectangleShape) GetOutlineThickness() float32 {
-	return float32(C.sfRectangleShape_getOutlineThickness(this.cptr))
+func (this *RectangleShape) GetOutlineThickness() (thickness float32) {
+	cstream.ExecAndBlock(func() {
+		thickness = float32(C.sfRectangleShape_getOutlineThickness(this.cptr))
+	})
+	return
 }
 
 // Get the total number of points of a rectangle shape
-func (this *RectangleShape) GetPointCount() uint {
-	return uint(C.sfRectangleShape_getPointCount(this.cptr))
+func (this *RectangleShape) GetPointCount() (pcount uint) {
+	cstream.ExecAndBlock(func() {
+		pcount = uint(C.sfRectangleShape_getPointCount(this.cptr))
+	})
+	return
 }
 
 // Get a point of a rectangle shape
@@ -272,7 +325,9 @@ func (this *RectangleShape) GetPointCount() uint {
 //
 // index: Index of the point to get, in range [0 .. GetPointCount() - 1]
 func (this *RectangleShape) GetPoint(index uint) (point Vector2f) {
-	point.fromC(C.sfRectangleShape_getPoint(this.cptr, C.uint(index)))
+	cstream.ExecAndBlock(func() {
+		point.fromC(C.sfRectangleShape_getPoint(this.cptr, C.uint(index)))
+	})
 	return
 }
 
@@ -284,7 +339,9 @@ func (this *RectangleShape) GetPoint(index uint) (point Vector2f) {
 // In other words, this function returns the bounds of the
 // entity in the entity's coordinate system.
 func (this *RectangleShape) GetLocalBounds() (rect FloatRect) {
-	rect.fromC(C.sfRectangleShape_getLocalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfRectangleShape_getLocalBounds(this.cptr))
+	})
 	return
 }
 
@@ -296,7 +353,9 @@ func (this *RectangleShape) GetLocalBounds() (rect FloatRect) {
 // In other words, this function returns the bounds of the
 // sprite in the global 2D world's coordinate system.
 func (this *RectangleShape) GetGlobalBounds() (rect FloatRect) {
-	rect.fromC(C.sfRectangleShape_getGlobalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfRectangleShape_getGlobalBounds(this.cptr))
+	})
 	return
 }
 
@@ -304,10 +363,12 @@ func (this *RectangleShape) GetGlobalBounds() (rect FloatRect) {
 //
 //	renderStates: can be nil to use the default render states
 func (this *RectangleShape) Draw(target RenderTarget, renderStates RenderStates) {
-	switch target.(type) {
-	case *RenderWindow:
-		C.sfRenderWindow_drawRectangleShape(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
-	case *RenderTexture:
-		C.sfRenderTexture_drawRectangleShape(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
-	}
+	cstream.Exec(func() {
+		switch target.(type) {
+		case *RenderWindow:
+			C.sfRenderWindow_drawRectangleShape(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+		case *RenderTexture:
+			C.sfRenderTexture_drawRectangleShape(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+		}
+	})
 }

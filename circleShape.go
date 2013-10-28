@@ -50,7 +50,9 @@ func (this *CircleShape) destroy() {
 // See sfCircleShape_move to apply an offset based on the previous position instead.
 // The default position of a circle Shape object is (0, 0).
 func (this *CircleShape) SetPosition(pos Vector2f) {
-	C.sfCircleShape_setPosition(this.cptr, pos.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setPosition(this.cptr, pos.toC())
+	})
 }
 
 // Set the scale factors of a circle shape
@@ -59,7 +61,9 @@ func (this *CircleShape) SetPosition(pos Vector2f) {
 // See sfCircleShape_scale to add a factor based on the previous scale instead.
 // The default scale of a circle Shape object is (1, 1).
 func (this *CircleShape) SetScale(scale Vector2f) {
-	C.sfCircleShape_setScale(this.cptr, scale.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setScale(this.cptr, scale.toC())
+	})
 }
 
 // Set the local origin of a circle shape
@@ -71,7 +75,9 @@ func (this *CircleShape) SetScale(scale Vector2f) {
 // transformations (position, scale, rotation).
 // The default origin of a circle Shape object is (0, 0).
 func (this *CircleShape) SetOrigin(orig Vector2f) {
-	C.sfCircleShape_setOrigin(this.cptr, orig.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setOrigin(this.cptr, orig.toC())
+	})
 }
 
 // Set the orientation of a circle shape
@@ -80,7 +86,9 @@ func (this *CircleShape) SetOrigin(orig Vector2f) {
 // See sfCircleShape_rotate to add an angle based on the previous rotation instead.
 // The default rotation of a circle Shape object is 0.
 func (this *CircleShape) SetRotation(rot float32) {
-	C.sfCircleShape_setRotation(this.cptr, C.float(rot))
+	cstream.Exec(func() {
+		C.sfCircleShape_setRotation(this.cptr, C.float(rot))
+	})
 }
 
 // Get the orientation of a circle shape
@@ -113,7 +121,9 @@ func (this *CircleShape) GetOrigin() (origin Vector2f) {
 // This function adds to the current position of the object,
 // unlike CircleShape.SetPosition which overwrites it.
 func (this *CircleShape) Move(offset Vector2f) {
-	C.sfCircleShape_move(this.cptr, offset.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_move(this.cptr, offset.toC())
+	})
 }
 
 // Scale a circle shape
@@ -121,7 +131,9 @@ func (this *CircleShape) Move(offset Vector2f) {
 // This function multiplies the current scale of the object,
 // unlike CircleShape.SetScale which overwrites it.
 func (this *CircleShape) Scale(factor Vector2f) {
-	C.sfCircleShape_scale(this.cptr, factor.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_scale(this.cptr, factor.toC())
+	})
 }
 
 // Rotate a circle shape
@@ -129,7 +141,9 @@ func (this *CircleShape) Scale(factor Vector2f) {
 // This function adds to the current rotation of the object,
 // unlike CircleShape.SetRotation which overwrites it.
 func (this *CircleShape) Rotate(angle float32) {
-	C.sfCircleShape_rotate(this.cptr, C.float(angle))
+	cstream.Exec(func() {
+		C.sfCircleShape_rotate(this.cptr, C.float(angle))
+	})
 }
 
 // Change the source texture of a circle shape
@@ -142,7 +156,9 @@ func (this *CircleShape) Rotate(angle float32) {
 // 	texture:   New texture
 // 	resetRect: Should the texture rect be reset to the size of the new texture?
 func (this *CircleShape) SetTexture(texture *Texture, resetRect bool) {
-	C.sfCircleShape_setTexture(this.cptr, texture.toCPtr(), goBool2C(resetRect))
+	cstream.Exec(func() {
+		C.sfCircleShape_setTexture(this.cptr, texture.toCPtr(), goBool2C(resetRect))
+	})
 	this.texture = texture
 }
 
@@ -152,7 +168,9 @@ func (this *CircleShape) SetTexture(texture *Texture, resetRect bool) {
 // the whole texture, but rather a part of it.
 // By default, the texture rect covers the entire texture.
 func (this *CircleShape) SetTextureRect(rect IntRect) {
-	C.sfCircleShape_setTextureRect(this.cptr, rect.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setTextureRect(this.cptr, rect.toC())
+	})
 }
 
 // Set the fill color of a circle shape
@@ -164,7 +182,9 @@ func (this *CircleShape) SetTextureRect(rect IntRect) {
 // the shape transparent, and have the outline alone.
 // By default, the shape's fill color is opaque white.
 func (this *CircleShape) SetFillColor(color Color) {
-	C.sfCircleShape_setFillColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setFillColor(this.cptr, color.toC())
+	})
 }
 
 // Set the outline color of a circle shape
@@ -172,7 +192,9 @@ func (this *CircleShape) SetFillColor(color Color) {
 // You can use sfTransparent to disable the outline.
 // By default, the shape's outline color is opaque white.
 func (this *CircleShape) SetOutlineColor(color Color) {
-	C.sfCircleShape_setOutlineColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfCircleShape_setOutlineColor(this.cptr, color.toC())
+	})
 }
 
 // Set the thickness of a circle shape's outline
@@ -181,7 +203,9 @@ func (this *CircleShape) SetOutlineColor(color Color) {
 // the outline.
 // By default, the outline thickness is 0.
 func (this *CircleShape) SetOutlineThickness(thickness float32) {
-	C.sfCircleShape_setOutlineThickness(this.cptr, C.float(thickness))
+	cstream.Exec(func() {
+		C.sfCircleShape_setOutlineThickness(this.cptr, C.float(thickness))
+	})
 }
 
 // Get the source texture of a circle shape
@@ -219,38 +243,55 @@ func (this *CircleShape) GetFillColor() (color Color) {
 
 // Get the outline color of a circle shape
 func (this *CircleShape) GetOutlineColor() (color Color) {
-	color.fromC(C.sfCircleShape_getOutlineColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfCircleShape_getOutlineColor(this.cptr))
+	})
 	return
 }
 
 // Get the outline thickness of a circle shape
-func (this *CircleShape) GetOutlineThickness() float32 {
-	return float32(C.sfCircleShape_getOutlineThickness(this.cptr))
+func (this *CircleShape) GetOutlineThickness() (thickness float32) {
+	cstream.ExecAndBlock(func() {
+		thickness = float32(C.sfCircleShape_getOutlineThickness(this.cptr))
+	})
+	return
 }
 
-func (this *CircleShape) GetPointCount() uint {
-	return uint(C.sfCircleShape_getPointCount(this.cptr))
+func (this *CircleShape) GetPointCount() (pcount uint) {
+	cstream.ExecAndBlock(func() {
+		pcount = uint(C.sfCircleShape_getPointCount(this.cptr))
+	})
+	return
 }
 
 // Get the total number of points of a circle shape
 func (this *CircleShape) GetPoint(index uint) (point Vector2f) {
-	point.fromC(C.sfCircleShape_getPoint(this.cptr, C.uint(index)))
+	cstream.ExecAndBlock(func() {
+		point.fromC(C.sfCircleShape_getPoint(this.cptr, C.uint(index)))
+	})
 	return
 }
 
 // Set the radius of a circle
 func (this *CircleShape) SetRadius(radius float32) {
-	C.sfCircleShape_setRadius(this.cptr, C.float(radius))
+	cstream.Exec(func() {
+		C.sfCircleShape_setRadius(this.cptr, C.float(radius))
+	})
 }
 
 // Get the radius of a circle
-func (this *CircleShape) GetRadius() float32 {
-	return float32(C.sfCircleShape_getRadius(this.cptr))
+func (this *CircleShape) GetRadius() (radius float32) {
+	cstream.ExecAndBlock(func() {
+		radius = float32(C.sfCircleShape_getRadius(this.cptr))
+	})
+	return
 }
 
 // Set the number of points of a circle
 func (this *CircleShape) SetPointCount(count uint) {
-	C.sfCircleShape_setPointCount(this.cptr, C.uint(count))
+	cstream.Exec(func() {
+		C.sfCircleShape_setPointCount(this.cptr, C.uint(count))
+	})
 }
 
 // Get the local bounding rectangle of a circle shape
@@ -261,7 +302,9 @@ func (this *CircleShape) SetPointCount(count uint) {
 // In other words, this function returns the bounds of the
 // entity in the entity's coordinate system.
 func (this *CircleShape) GetLocalBounds() (rect FloatRect) {
-	rect.fromC(C.sfCircleShape_getLocalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfCircleShape_getLocalBounds(this.cptr))
+	})
 	return
 }
 
@@ -273,7 +316,9 @@ func (this *CircleShape) GetLocalBounds() (rect FloatRect) {
 // In other words, this function returns the bounds of the
 // sprite in the global 2D world's coordinate system.
 func (this *CircleShape) GetGlobalBounds() (rect FloatRect) {
-	rect.fromC(C.sfCircleShape_getGlobalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfCircleShape_getGlobalBounds(this.cptr))
+	})
 	return
 }
 
@@ -281,10 +326,12 @@ func (this *CircleShape) GetGlobalBounds() (rect FloatRect) {
 //
 //renderStates: can be nil to use the default render states
 func (this *CircleShape) Draw(target RenderTarget, renderStates RenderStates) {
-	switch target.(type) {
-	case *RenderWindow:
-		C.sfRenderWindow_drawCircleShape(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
-	case *RenderTexture:
-		C.sfRenderTexture_drawCircleShape(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
-	}
+	cstream.Exec(func() {
+		switch target.(type) {
+		case *RenderWindow:
+			C.sfRenderWindow_drawCircleShape(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+		case *RenderTexture:
+			C.sfRenderTexture_drawCircleShape(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+		}
+	})
 }

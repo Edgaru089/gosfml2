@@ -180,7 +180,9 @@ func (this *Text) GetInverseTransform() (transform Transform) {
 // Set the string of a text (from a unicode string)
 func (this *Text) SetString(text string) {
 	runes := strToRunes(text)
-	C.sfText_setUnicodeString(this.cptr, (*C.sfUint32)(unsafe.Pointer(&runes[0])))
+	cstream.ExecAndBlock(func() {
+		C.sfText_setUnicodeString(this.cptr, (*C.sfUint32)(unsafe.Pointer(&runes[0])))
+	})
 }
 
 // Set the font of a text
@@ -282,10 +284,12 @@ func (this *Text) GetGlobalBounds() (rect FloatRect) {
 //
 // 	renderStates: can be nil to use the default render states
 func (this *Text) Draw(target RenderTarget, renderStates RenderStates) {
-	switch target.(type) {
-	case *RenderWindow:
-		C.sfRenderWindow_drawText(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
-	case *RenderTexture:
-		C.sfRenderTexture_drawText(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
-	}
+	cstream.Exec(func() {
+		switch target.(type) {
+		case *RenderWindow:
+			C.sfRenderWindow_drawText(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+		case *RenderTexture:
+			C.sfRenderTexture_drawText(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+		}
+	})
 }

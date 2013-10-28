@@ -53,7 +53,9 @@ func (this *Sprite) destroy() {
 // See Sprite.Move to apply an offset based on the previous position instead.
 // The default position of a sprite Sprite object is (0, 0).
 func (this *Sprite) SetPosition(pos Vector2f) {
-	C.sfSprite_setPosition(this.cptr, pos.toC())
+	cstream.Exec(func() {
+		C.sfSprite_setPosition(this.cptr, pos.toC())
+	})
 }
 
 // Set the scale factors of a sprite
@@ -62,7 +64,9 @@ func (this *Sprite) SetPosition(pos Vector2f) {
 // See sfSprite_scale to add a factor based on the previous scale instead.
 // The default scale of a sprite Sprite object is (1, 1).
 func (this *Sprite) SetScale(scale Vector2f) {
-	C.sfSprite_setScale(this.cptr, scale.toC())
+	cstream.Exec(func() {
+		C.sfSprite_setScale(this.cptr, scale.toC())
+	})
 }
 
 // Set the local origin of a sprite
@@ -74,7 +78,9 @@ func (this *Sprite) SetScale(scale Vector2f) {
 // transformations (position, scale, rotation).
 // The default origin of a sprite Sprite object is (0, 0).
 func (this *Sprite) SetOrigin(orig Vector2f) {
-	C.sfSprite_setOrigin(this.cptr, orig.toC())
+	cstream.Exec(func() {
+		C.sfSprite_setOrigin(this.cptr, orig.toC())
+	})
 }
 
 // Set the orientation of a sprite
@@ -83,7 +89,9 @@ func (this *Sprite) SetOrigin(orig Vector2f) {
 // See Sprite.Rotate to add an angle based on the previous rotation instead.
 // The default rotation of a sprite Sprite object is 0.
 func (this *Sprite) SetRotation(rot float32) {
-	C.sfSprite_setRotation(this.cptr, C.float(rot))
+	cstream.Exec(func() {
+		C.sfSprite_setRotation(this.cptr, C.float(rot))
+	})
 }
 
 // Move a sprite by a given offset
@@ -91,7 +99,9 @@ func (this *Sprite) SetRotation(rot float32) {
 // This function adds to the current position of the object,
 // unlike Sprite.SetPosition which overwrites it.
 func (this *Sprite) Move(offset Vector2f) {
-	C.sfSprite_move(this.cptr, offset.toC())
+	cstream.Exec(func() {
+		C.sfSprite_move(this.cptr, offset.toC())
+	})
 }
 
 // Scale a sprite
@@ -99,7 +109,9 @@ func (this *Sprite) Move(offset Vector2f) {
 // This function multiplies the current scale of the object,
 // unlike Sprite.SetScale which overwrites it.
 func (this *Sprite) Scale(factor Vector2f) {
-	C.sfSprite_scale(this.cptr, factor.toC())
+	cstream.Exec(func() {
+		C.sfSprite_scale(this.cptr, factor.toC())
+	})
 }
 
 // Rotate a sprite
@@ -107,31 +119,42 @@ func (this *Sprite) Scale(factor Vector2f) {
 // This function adds to the current rotation of the object,
 // unlike Sprite.SetRotation which overwrites it.
 func (this *Sprite) Rotate(angle float32) {
-	C.sfSprite_rotate(this.cptr, C.float(angle))
+	cstream.Exec(func() {
+		C.sfSprite_rotate(this.cptr, C.float(angle))
+	})
 }
 
 // Get the orientation of a sprite
 //
 // The rotation is always in the range [0, 360].
-func (this *Sprite) GetRotation() float32 {
-	return float32(C.sfSprite_getRotation(this.cptr))
+func (this *Sprite) GetRotation() (rotation float32) {
+	cstream.ExecAndBlock(func() {
+		rotation = float32(C.sfSprite_getRotation(this.cptr))
+	})
+	return
 }
 
 // Get the position of a sprite
 func (this *Sprite) GetPosition() (pos Vector2f) {
-	pos.fromC(C.sfSprite_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		pos.fromC(C.sfSprite_getPosition(this.cptr))
+	})
 	return
 }
 
 // Get the current scale of a sprite
 func (this *Sprite) GetScale() (scale Vector2f) {
-	scale.fromC(C.sfSprite_getScale(this.cptr))
+	cstream.ExecAndBlock(func() {
+		scale.fromC(C.sfSprite_getScale(this.cptr))
+	})
 	return
 }
 
 // Get the local origin of a sprite
 func (this *Sprite) GetOrigin() (origin Vector2f) {
-	origin.fromC(C.sfSprite_getOrigin(this.cptr))
+	cstream.ExecAndBlock(func() {
+		origin.fromC(C.sfSprite_getOrigin(this.cptr))
+	})
 	return
 }
 
@@ -150,7 +173,9 @@ func (this *Sprite) GetOrigin() (origin Vector2f) {
 // 	texture:   New texture
 // 	resetRect: Should the texture rect be reset to the size of the new texture?
 func (this *Sprite) SetTexture(texture *Texture, resetRect bool) {
-	C.sfSprite_setTexture(this.cptr, texture.toCPtr(), goBool2C(resetRect))
+	cstream.Exec(func() {
+		C.sfSprite_setTexture(this.cptr, texture.toCPtr(), goBool2C(resetRect))
+	})
 	this.texture = texture
 }
 
@@ -162,7 +187,9 @@ func (this *Sprite) SetTexture(texture *Texture, resetRect bool) {
 //
 // 	rect: Rectangle defining the region of the texture to display
 func (this *Sprite) SetTextureRect(rect IntRect) {
-	C.sfSprite_setTextureRect(this.cptr, rect.toC())
+	cstream.Exec(func() {
+		C.sfSprite_setTextureRect(this.cptr, rect.toC())
+	})
 }
 
 // Get the source texture of a sprite
@@ -174,13 +201,17 @@ func (this *Sprite) GetTexture() *Texture {
 
 // Get the sub-rectangle of the texture displayed by a sprite
 func (this *Sprite) GetTextureRect() (rect IntRect) {
-	rect.fromC(C.sfSprite_getTextureRect(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfSprite_getTextureRect(this.cptr))
+	})
 	return
 }
 
 // Get the global color of a sprite
 func (this *Sprite) GetColor() (color Color) {
-	color.fromC(C.sfSprite_getColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfSprite_getColor(this.cptr))
+	})
 	return
 }
 
@@ -191,18 +222,24 @@ func (this *Sprite) GetColor() (color Color) {
 // its global opacity.
 // By default, the sprite's color is opaque white.
 func (this *Sprite) SetColor(color Color) {
-	C.sfSprite_setColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfSprite_setColor(this.cptr, color.toC())
+	})
 }
 
 // Get the combined transform of a sprite
 func (this *Sprite) GetTransform() (trans Transform) {
-	trans.fromC(C.sfSprite_getTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		trans.fromC(C.sfSprite_getTransform(this.cptr))
+	})
 	return
 }
 
 // Get the inverse of the combined transform of a sprite
 func (this *Sprite) GetInverseTransform() (transform Transform) {
-	transform.fromC(C.sfSprite_getInverseTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfSprite_getInverseTransform(this.cptr))
+	})
 	return
 }
 
@@ -214,7 +251,9 @@ func (this *Sprite) GetInverseTransform() (transform Transform) {
 // In other words, this function returns the bounds of the
 // entity in the entity's coordinate system.
 func (this *Sprite) GetLocalBounds() (rect FloatRect) {
-	rect.fromC(C.sfSprite_getLocalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfSprite_getLocalBounds(this.cptr))
+	})
 	return
 }
 
@@ -226,7 +265,9 @@ func (this *Sprite) GetLocalBounds() (rect FloatRect) {
 // In other words, this function returns the bounds of the
 // sprite in the global 2D world's coordinate system.
 func (this *Sprite) GetGlobalBounds() (rect FloatRect) {
-	rect.fromC(C.sfSprite_getGlobalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfSprite_getGlobalBounds(this.cptr))
+	})
 	return
 }
 
@@ -234,10 +275,12 @@ func (this *Sprite) GetGlobalBounds() (rect FloatRect) {
 //
 // 	renderStates: can be nil to use the default render states
 func (this *Sprite) Draw(target RenderTarget, renderStates RenderStates) {
-	switch target.(type) {
-	case *RenderWindow:
-		C.sfRenderWindow_drawSprite(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
-	case *RenderTexture:
-		C.sfRenderTexture_drawSprite(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
-	}
+	cstream.Exec(func() {
+		switch target.(type) {
+		case *RenderWindow:
+			C.sfRenderWindow_drawSprite(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+		case *RenderTexture:
+			C.sfRenderTexture_drawSprite(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+		}
+	})
 }

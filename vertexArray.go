@@ -151,12 +151,14 @@ func (this *VertexArray) GetBounds() (rect FloatRect) {
 }
 
 func (this *VertexArray) Draw(target RenderTarget, renderStates RenderStates) {
-	switch target.(type) {
-	case *RenderWindow:
-		C.sfRenderWindow_drawVertexArray(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
-	case *RenderTexture:
-		C.sfRenderTexture_drawVertexArray(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
-	}
+	cstream.Exec(func() {
+		switch target.(type) {
+		case *RenderWindow:
+			C.sfRenderWindow_drawVertexArray(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+		case *RenderTexture:
+			C.sfRenderTexture_drawVertexArray(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+		}
+	})
 }
 
 /////////////////////////////////////
