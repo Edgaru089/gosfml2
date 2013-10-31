@@ -300,7 +300,7 @@ func (this *Text) GetColor() (color Color) {
 // origin are applied).
 // If index is out of range, the position of the end of
 // the string is returned.
-func (this *Text) FintCharacterPos(index uint) (pos Vector2f) {
+func (this *Text) FindCharacterPos(index uint) (pos Vector2f) {
 	cstream.ExecAndBlock(func() {
 		pos.fromC(C.sfText_findCharacterPos(this.cptr, C.size_t(index)))
 	})
@@ -340,11 +340,12 @@ func (this *Text) GetGlobalBounds() (rect FloatRect) {
 // 	renderStates: can be nil to use the default render states
 func (this *Text) Draw(target RenderTarget, renderStates RenderStates) {
 	cstream.Exec(func() {
+		rs := renderStates.toC()
 		switch target.(type) {
 		case *RenderWindow:
-			C.sfRenderWindow_drawText(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+			C.sfRenderWindow_drawText(target.(*RenderWindow).cptr, this.cptr, &rs)
 		case *RenderTexture:
-			C.sfRenderTexture_drawText(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+			C.sfRenderTexture_drawText(target.(*RenderTexture).cptr, this.cptr, &rs)
 		}
 	})
 }

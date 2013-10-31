@@ -369,11 +369,12 @@ func (this *RectangleShape) GetGlobalBounds() (rect FloatRect) {
 //	renderStates: can be nil to use the default render states
 func (this *RectangleShape) Draw(target RenderTarget, renderStates RenderStates) {
 	cstream.Exec(func() {
+		rs := renderStates.toC()
 		switch target.(type) {
 		case *RenderWindow:
-			C.sfRenderWindow_drawRectangleShape(target.(*RenderWindow).cptr, this.cptr, renderStates.toCPtr())
+			C.sfRenderWindow_drawRectangleShape(target.(*RenderWindow).cptr, this.cptr, &rs)
 		case *RenderTexture:
-			C.sfRenderTexture_drawRectangleShape(target.(*RenderTexture).cptr, this.cptr, renderStates.toCPtr())
+			C.sfRenderTexture_drawRectangleShape(target.(*RenderTexture).cptr, this.cptr, &rs)
 		}
 	})
 }
