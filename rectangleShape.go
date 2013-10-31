@@ -31,9 +31,11 @@ func NewRectangleShape() *RectangleShape {
 }
 
 // Copy an existing rectangle shape
-func (this *RectangleShape) Copy() *RectangleShape {
-	shape := &RectangleShape{C.sfRectangleShape_copy(this.cptr), this.texture}
-	runtime.SetFinalizer(shape, (*RectangleShape).destroy)
+func (this *RectangleShape) Copy() (shape *RectangleShape) {
+	cstream.ExecAndBlock(func() {
+		shape = &RectangleShape{C.sfRectangleShape_copy(this.cptr), this.texture}
+		runtime.SetFinalizer(shape, (*RectangleShape).destroy)
+	})
 	return shape
 }
 
@@ -194,8 +196,11 @@ func (this *RectangleShape) SetTextureRect(rect IntRect) {
 // Get the source texture of a rectangle shape
 //
 // If the shape has no source texture, a nil pointer is returned.
-func (this *RectangleShape) GetTexture() *Texture {
-	return this.texture
+func (this *RectangleShape) GetTexture() (texture *Texture) {
+	cstream.ExecAndBlock(func() {
+		texture = this.texture
+	})
+	return
 }
 
 // Get the sub-rectangle of the texture displayed by a rectangle shape

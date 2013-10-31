@@ -57,9 +57,11 @@ func (this *Text) destroy() {
 }
 
 // Copy an existing text
-func (this *Text) Copy() *Text {
-	text := &Text{C.sfText_copy(this.cptr), this.font}
-	runtime.SetFinalizer(text, (*Text).destroy)
+func (this *Text) Copy() (text *Text) {
+	cstream.ExecAndBlock(func() {
+		text = &Text{C.sfText_copy(this.cptr), this.font}
+		runtime.SetFinalizer(text, (*Text).destroy)
+	})
 	return text
 }
 
@@ -71,7 +73,9 @@ func (this *Text) Copy() *Text {
 //
 // 	position: New position
 func (this *Text) SetPosition(pos Vector2f) {
-	C.sfText_setPosition(this.cptr, pos.toC())
+	cstream.Exec(func() {
+		C.sfText_setPosition(this.cptr, pos.toC())
+	})
 }
 
 // Set the scale factors of a text
@@ -82,7 +86,9 @@ func (this *Text) SetPosition(pos Vector2f) {
 //
 // 	scale: New scale factors
 func (this *Text) SetScale(scale Vector2f) {
-	C.sfText_setScale(this.cptr, scale.toC())
+	cstream.Exec(func() {
+		C.sfText_setScale(this.cptr, scale.toC())
+	})
 }
 
 // Set the local origin of a text
@@ -96,7 +102,9 @@ func (this *Text) SetScale(scale Vector2f) {
 //
 // 	origin: New origin
 func (this *Text) SetOrigin(orig Vector2f) {
-	C.sfText_setOrigin(this.cptr, orig.toC())
+	cstream.Exec(func() {
+		C.sfText_setOrigin(this.cptr, orig.toC())
+	})
 }
 
 // Set the orientation of a text
@@ -107,7 +115,9 @@ func (this *Text) SetOrigin(orig Vector2f) {
 //
 // 	rot: New rotation, in degrees
 func (this *Text) SetRotation(rot float32) {
-	C.sfText_setRotation(this.cptr, C.float(rot))
+	cstream.Exec(func() {
+		C.sfText_setRotation(this.cptr, C.float(rot))
+	})
 }
 
 // Move a text by a given offset
@@ -117,7 +127,9 @@ func (this *Text) SetRotation(rot float32) {
 //
 // 	offset: Offset
 func (this *Text) Move(offset Vector2f) {
-	C.sfText_move(this.cptr, offset.toC())
+	cstream.Exec(func() {
+		C.sfText_move(this.cptr, offset.toC())
+	})
 }
 
 // Scale a text
@@ -127,7 +139,9 @@ func (this *Text) Move(offset Vector2f) {
 //
 // 	factor: Scale factors
 func (this *Text) Scale(factor Vector2f) {
-	C.sfText_scale(this.cptr, factor.toC())
+	cstream.Exec(func() {
+		C.sfText_scale(this.cptr, factor.toC())
+	})
 }
 
 // Rotate a text
@@ -137,65 +151,84 @@ func (this *Text) Scale(factor Vector2f) {
 //
 // 	angle: Angle of rotation, in degrees
 func (this *Text) Rotate(angle float32) {
-	C.sfText_rotate(this.cptr, C.float(angle))
+	cstream.Exec(func() {
+		C.sfText_rotate(this.cptr, C.float(angle))
+	})
 }
 
 // Get the orientation of a text
 //
 // The rotation is always in the range [0, 360].
-func (this *Text) GetRotation() float32 {
-	return float32(C.sfText_getRotation(this.cptr))
+func (this *Text) GetRotation() (rot float32) {
+	cstream.ExecAndBlock(func() {
+		rot = float32(C.sfText_getRotation(this.cptr))
+	})
+	return
 }
 
 // Get the position of a text
 func (this *Text) GetPosition() (pos Vector2f) {
-	pos.fromC(C.sfText_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		pos.fromC(C.sfText_getPosition(this.cptr))
+	})
 	return
 }
 
 // Get the current scale of a text
 func (this *Text) GetScale() (scale Vector2f) {
-	scale.fromC(C.sfText_getScale(this.cptr))
+	cstream.ExecAndBlock(func() {
+		scale.fromC(C.sfText_getScale(this.cptr))
+	})
 	return
 }
 
 // Get the local origin of a text
 func (this *Text) GetOrigin() (origin Vector2f) {
-	origin.fromC(C.sfText_getOrigin(this.cptr))
+	cstream.ExecAndBlock(func() {
+		origin.fromC(C.sfText_getOrigin(this.cptr))
+	})
 	return
 }
 
 // Get the combined transform of a text
 func (this *Text) GetTransform() (trans Transform) {
-	trans.fromC(C.sfText_getTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		trans.fromC(C.sfText_getTransform(this.cptr))
+	})
 	return
 }
 
 // Get the inverse of the combined transform of a text
 func (this *Text) GetInverseTransform() (transform Transform) {
-	transform.fromC(C.sfText_getInverseTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfText_getInverseTransform(this.cptr))
+	})
 	return
 }
 
 // Set the string of a text (from a unicode string)
 func (this *Text) SetString(text string) {
-	runes := strToRunes(text)
 	cstream.ExecAndBlock(func() {
+		runes := strToRunes(text)
 		C.sfText_setUnicodeString(this.cptr, (*C.sfUint32)(unsafe.Pointer(&runes[0])))
 	})
 }
 
 // Set the font of a text
 func (this *Text) SetFont(font *Font) {
-	C.sfText_setFont(this.cptr, font.toCPtr())
-	this.font = font
+	cstream.Exec(func() {
+		C.sfText_setFont(this.cptr, font.toCPtr())
+		this.font = font
+	})
 }
 
 // Set the character size of a text
 //
 // The default size is 30.
 func (this *Text) SetCharacterSize(size uint) {
-	C.sfText_setCharacterSize(this.cptr, C.uint(size))
+	cstream.Exec(func() {
+		C.sfText_setCharacterSize(this.cptr, C.uint(size))
+	})
 }
 
 // Set the style of a text
@@ -211,35 +244,51 @@ func (this *Text) SetStyle(style TextStyle) {
 //
 // By default, the text's color is opaque white.
 func (this *Text) SetColor(color Color) {
-	C.sfText_setColor(this.cptr, color.toC())
+	cstream.Exec(func() {
+		C.sfText_setColor(this.cptr, color.toC())
+	})
 }
 
 // Get the string of a text (returns a unicode string)
-func (this *Text) GetString() string {
-	cstr := C.sfText_getUnicodeString(this.cptr)
-	return utf32CString2Go(cstr)
+func (this *Text) GetString() (str string) {
+	cstream.ExecAndBlock(func() {
+		cstr := C.sfText_getUnicodeString(this.cptr)
+		str = utf32CString2Go(cstr)
+	})
+	return
 }
 
 // Get the font used by a text
 //
 // If the text has no font attached, a nil pointer is returned.
-func (this *Text) GetFont() *Font {
-	return this.font
+func (this *Text) GetFont() (font *Font) {
+	cstream.ExecAndBlock(func() {
+		font = this.font
+	})
+	return
 }
 
 // Get the size of the characters of a text
-func (this *Text) GetCharacterSize() uint {
-	return uint(C.sfText_getCharacterSize(this.cptr))
+func (this *Text) GetCharacterSize() (size uint) {
+	cstream.ExecAndBlock(func() {
+		size = uint(C.sfText_getCharacterSize(this.cptr))
+	})
+	return
 }
 
 // Get the style of a text
-func (this *Text) GetStyle() TextStyle {
-	return TextStyle(C.sfText_getStyle(this.cptr))
+func (this *Text) GetStyle() (style TextStyle) {
+	cstream.ExecAndBlock(func() {
+		style = TextStyle(C.sfText_getStyle(this.cptr))
+	})
+	return
 }
 
 // Get the global color of a text
 func (this *Text) GetColor() (color Color) {
-	color.fromC(C.sfText_getColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfText_getColor(this.cptr))
+	})
 	return
 }
 
@@ -252,7 +301,9 @@ func (this *Text) GetColor() (color Color) {
 // If index is out of range, the position of the end of
 // the string is returned.
 func (this *Text) FintCharacterPos(index uint) (pos Vector2f) {
-	pos.fromC(C.sfText_findCharacterPos(this.cptr, C.size_t(index)))
+	cstream.ExecAndBlock(func() {
+		pos.fromC(C.sfText_findCharacterPos(this.cptr, C.size_t(index)))
+	})
 	return
 }
 
@@ -264,7 +315,9 @@ func (this *Text) FintCharacterPos(index uint) (pos Vector2f) {
 // In other words, this function returns the bounds of the
 // entity in the entity's coordinate system.
 func (this *Text) GetLocalBounds() (rect FloatRect) {
-	rect.fromC(C.sfText_getLocalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfText_getLocalBounds(this.cptr))
+	})
 	return
 }
 
@@ -276,7 +329,9 @@ func (this *Text) GetLocalBounds() (rect FloatRect) {
 // In other words, this function returns the bounds of the
 // text in the global 2D world's coordinate system.
 func (this *Text) GetGlobalBounds() (rect FloatRect) {
-	rect.fromC(C.sfText_getGlobalBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfText_getGlobalBounds(this.cptr))
+	})
 	return
 }
 

@@ -35,10 +35,12 @@ func NewSprite(tex *Texture) *Sprite {
 }
 
 // Copy an existing sprite
-func (this *Sprite) Copy() *Sprite {
-	sprite := &Sprite{C.sfSprite_copy(this.cptr), this.texture}
-	runtime.SetFinalizer(sprite, (*Sprite).destroy)
-	return sprite
+func (this *Sprite) Copy() (sprite *Sprite) {
+	cstream.ExecAndBlock(func() {
+		sprite = &Sprite{C.sfSprite_copy(this.cptr), this.texture}
+		runtime.SetFinalizer(sprite, (*Sprite).destroy)
+	})
+	return
 }
 
 // Destroy an existing sprite
@@ -195,8 +197,11 @@ func (this *Sprite) SetTextureRect(rect IntRect) {
 // Get the source texture of a sprite
 //
 // If the sprite has no source texture, nil is returned.
-func (this *Sprite) GetTexture() *Texture {
-	return this.texture
+func (this *Sprite) GetTexture() (texture *Texture) {
+	cstream.ExecAndBlock(func() {
+		texture = this.texture
+	})
+	return
 }
 
 // Get the sub-rectangle of the texture displayed by a sprite

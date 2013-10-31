@@ -54,7 +54,9 @@ func (this *RenderTexture) destroy() {
 
 // Get the size of the rendering region of a render texture
 func (this *RenderTexture) GetSize() (size Vector2u) {
-	size.fromC(C.sfRenderTexture_getSize(this.cptr))
+	cstream.ExecAndBlock(func() {
+		size.fromC(C.sfRenderTexture_getSize(this.cptr))
+	})
 	return
 }
 
@@ -62,7 +64,9 @@ func (this *RenderTexture) GetSize() (size Vector2u) {
 //
 // 	active: true to activate, false to deactivate
 func (this *RenderTexture) SetActive(active bool) {
-	C.sfRenderTexture_setActive(this.cptr, goBool2C(active))
+	cstream.Exec(func() {
+		C.sfRenderTexture_setActive(this.cptr, goBool2C(active))
+	})
 }
 
 // Update the contents of the target texture
@@ -85,8 +89,10 @@ func (this *RenderTexture) Clear(color Color) {
 //
 // 	view: Pointer to the new view
 func (this *RenderTexture) SetView(view *View) {
-	this.view = view
-	C.sfRenderTexture_setView(this.cptr, view.toCPtr())
+	cstream.Exec(func() {
+		this.view = view
+		C.sfRenderTexture_setView(this.cptr, view.toCPtr())
+	})
 }
 
 // Get the current active view of a render texture
@@ -103,7 +109,9 @@ func (this *RenderTexture) GetDefaultView() *View {
 //
 // 	view: Target view
 func (this *RenderTexture) GetViewport(view *View) (viewport IntRect) {
-	viewport.fromC(C.sfRenderTexture_getViewport(this.cptr, view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		viewport.fromC(C.sfRenderTexture_getViewport(this.cptr, view.toCPtr()))
+	})
 	return
 }
 
@@ -127,7 +135,9 @@ func (this *RenderTexture) GetViewport(view *View) (viewport IntRect) {
 // 	point: Pixel to convert
 // 	view:  The view to use for converting the point
 func (this *RenderTexture) MapPixelToCoords(pos Vector2i, view *View) (coords Vector2f) {
-	coords.fromC(C.sfRenderTexture_mapPixelToCoords(this.cptr, pos.toC(), view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		coords.fromC(C.sfRenderTexture_mapPixelToCoords(this.cptr, pos.toC(), view.toCPtr()))
+	})
 	return
 }
 
@@ -150,7 +160,9 @@ func (this *RenderTexture) MapPixelToCoords(pos Vector2i, view *View) (coords Ve
 // 	point: Point to convert
 // 	view:  The view to use for converting the point
 func (this *RenderTexture) MapCoordsToPixel(pos Vector2f, view *View) (coords Vector2i) {
-	coords.fromC(C.sfRenderTexture_mapCoordsToPixel(this.cptr, pos.toC(), view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		coords.fromC(C.sfRenderTexture_mapCoordsToPixel(this.cptr, pos.toC(), view.toCPtr()))
+	})
 	return
 }
 
@@ -178,7 +190,9 @@ func (this *RenderTexture) Draw(drawer Drawer, renderStates RenderStates) {
 // saved and restored). Take a look at the resetGLStates
 // function if you do so.
 func (this *RenderTexture) PushGLStates() {
-	C.sfRenderTexture_pushGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderTexture_pushGLStates(this.cptr)
+	})
 }
 
 // Restore the previously saved OpenGL render states and matrices
@@ -186,7 +200,9 @@ func (this *RenderTexture) PushGLStates() {
 // See the description of pushGLStates to get a detailed
 // description of these functions.
 func (this *RenderTexture) PopGLStates() {
-	C.sfRenderTexture_popGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderTexture_popGLStates(this.cptr)
+	})
 }
 
 // Reset the internal OpenGL states so that the target is ready for drawing
@@ -197,38 +213,50 @@ func (this *RenderTexture) PopGLStates() {
 // states needed by SFML are set, so that subsequent RenderTexture.Draw
 // calls will work as expected.
 func (this *RenderTexture) ResetGLStates() {
-	C.sfRenderTexture_resetGLStates(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfRenderTexture_resetGLStates(this.cptr)
+	})
 }
 
 // Get the target texture of a render texture
-func (this *RenderTexture) GetTexture() *Texture {
-	tex := &Texture{}
+func (this *RenderTexture) GetTexture() (texture *Texture) {
 	cstream.ExecAndBlock(func() {
-		tex.cptr = C.sfRenderTexture_getTexture(this.cptr)
+		texture = &Texture{}
+		texture.cptr = C.sfRenderTexture_getTexture(this.cptr)
 	})
-	return tex
+	return
 }
 
 // Enable or disable the smooth filter on a render texture
 //
 // 	smooth: true to enable smoothing, false to disable it
 func (this *RenderTexture) SetSmooth(smooth bool) {
-	C.sfRenderTexture_setSmooth(this.cptr, goBool2C(smooth))
+	cstream.Exec(func() {
+		C.sfRenderTexture_setSmooth(this.cptr, goBool2C(smooth))
+	})
 }
 
 // Tell whether the smooth filter is enabled or not for a render texture
-func (this *RenderTexture) IsSmooth() bool {
-	return sfBool2Go(C.sfRenderTexture_isSmooth(this.cptr))
+func (this *RenderTexture) IsSmooth() (smooth bool) {
+	cstream.ExecAndBlock(func() {
+		smooth = sfBool2Go(C.sfRenderTexture_isSmooth(this.cptr))
+	})
+	return
 }
 
 // Enable or disable texture repeating
 //
 // 	repeated: true to enable repeating, false to disable it
 func (this *RenderTexture) SetRepeated(repeated bool) {
-	C.sfRenderTexture_setRepeated(this.cptr, goBool2C(repeated))
+	cstream.Exec(func() {
+		C.sfRenderTexture_setRepeated(this.cptr, goBool2C(repeated))
+	})
 }
 
 // Tell whether the texture is repeated or not
-func (this *RenderTexture) IsRepeated() bool {
-	return sfBool2Go(C.sfRenderTexture_isRepeated(this.cptr))
+func (this *RenderTexture) IsRepeated() (repeated bool) {
+	cstream.ExecAndBlock(func() {
+		repeated = sfBool2Go(C.sfRenderTexture_isRepeated(this.cptr))
+	})
+	return
 }

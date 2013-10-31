@@ -32,9 +32,11 @@ func NewCircleShape(radius float32) *CircleShape {
 }
 
 // Copy an existing circle shape
-func (this *CircleShape) Copy() *CircleShape {
-	shape := &CircleShape{C.sfCircleShape_copy(this.cptr), this.texture}
-	runtime.SetFinalizer(shape, (*CircleShape).destroy)
+func (this *CircleShape) Copy() (shape *CircleShape) {
+	cstream.ExecAndBlock(func() {
+		shape = &CircleShape{C.sfCircleShape_copy(this.cptr), this.texture}
+		runtime.SetFinalizer(shape, (*CircleShape).destroy)
+	})
 	return shape
 }
 
@@ -94,25 +96,34 @@ func (this *CircleShape) SetRotation(rot float32) {
 // Get the orientation of a circle shape
 //
 // The rotation is always in the range [0, 360].
-func (this *CircleShape) GetRotation() float32 {
-	return float32(C.sfCircleShape_getRotation(this.cptr))
+func (this *CircleShape) GetRotation() (rot float32) {
+	cstream.ExecAndBlock(func() {
+		rot = float32(C.sfCircleShape_getRotation(this.cptr))
+	})
+	return
 }
 
 // Get the position of a circle shape
 func (this *CircleShape) GetPosition() (position Vector2f) {
-	position.fromC(C.sfCircleShape_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		position.fromC(C.sfCircleShape_getPosition(this.cptr))
+	})
 	return
 }
 
 // Get the current scale of a circle shape
 func (this *CircleShape) GetScale() (scale Vector2f) {
-	scale.fromC(C.sfCircleShape_getScale(this.cptr))
+	cstream.ExecAndBlock(func() {
+		scale.fromC(C.sfCircleShape_getScale(this.cptr))
+	})
 	return
 }
 
 // Get the local origin of a circle shape
 func (this *CircleShape) GetOrigin() (origin Vector2f) {
-	origin.fromC(C.sfCircleShape_getOrigin(this.cptr))
+	cstream.ExecAndBlock(func() {
+		origin.fromC(C.sfCircleShape_getOrigin(this.cptr))
+	})
 	return
 }
 
@@ -158,8 +169,8 @@ func (this *CircleShape) Rotate(angle float32) {
 func (this *CircleShape) SetTexture(texture *Texture, resetRect bool) {
 	cstream.Exec(func() {
 		C.sfCircleShape_setTexture(this.cptr, texture.toCPtr(), goBool2C(resetRect))
+		this.texture = texture
 	})
-	this.texture = texture
 }
 
 // Set the sub-rectangle of the texture that a circle shape will display
@@ -213,31 +224,42 @@ func (this *CircleShape) SetOutlineThickness(thickness float32) {
 // If the shape has no source texture, nil is returned.
 // The returned pointer is const, which means that you can't
 // modify the texture when you retrieve it with this function.
-func (this *CircleShape) GetTexture() *Texture {
-	return this.texture
+func (this *CircleShape) GetTexture() (tex *Texture) {
+	cstream.ExecAndBlock(func() {
+		tex = this.texture
+	})
+	return
 }
 
 // Get the combined transform of a circle shape
 func (this *CircleShape) GetTransform() (transform Transform) {
-	transform.fromC(C.sfCircleShape_getTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfCircleShape_getTransform(this.cptr))
+	})
 	return
 }
 
 // Get the inverse of the combined transform of a circle shape
 func (this *CircleShape) GetInverseTransform() (transform Transform) {
-	transform.fromC(C.sfCircleShape_getInverseTransform(this.cptr))
+	cstream.ExecAndBlock(func() {
+		transform.fromC(C.sfCircleShape_getInverseTransform(this.cptr))
+	})
 	return
 }
 
 // Get the sub-rectangle of the texture displayed by a circle shape
 func (this *CircleShape) GetTextureRect() (rect IntRect) {
-	rect.fromC(C.sfCircleShape_getTextureRect(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfCircleShape_getTextureRect(this.cptr))
+	})
 	return
 }
 
 // Get the fill color of a circle shape
 func (this *CircleShape) GetFillColor() (color Color) {
-	color.fromC(C.sfCircleShape_getFillColor(this.cptr))
+	cstream.ExecAndBlock(func() {
+		color.fromC(C.sfCircleShape_getFillColor(this.cptr))
+	})
 	return
 }
 

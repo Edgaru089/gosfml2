@@ -52,10 +52,12 @@ func NewVertexArray() *VertexArray {
 }
 
 // Copy an existing vertex array
-func (this *VertexArray) Copy() *VertexArray {
-	vertexArray := &VertexArray{C.sfVertexArray_copy(this.cptr)}
-	runtime.SetFinalizer(vertexArray, (*VertexArray).destroy)
-	return vertexArray
+func (this *VertexArray) Copy() (vertexArray *VertexArray) {
+	cstream.ExecAndBlock(func() {
+		vertexArray := &VertexArray{C.sfVertexArray_copy(this.cptr)}
+		runtime.SetFinalizer(vertexArray, (*VertexArray).destroy)
+	})
+	return
 }
 
 // Destroy an existing vertex array
@@ -65,8 +67,11 @@ func (this *VertexArray) destroy() {
 }
 
 // Return the vertex count of a vertex array
-func (this *VertexArray) GetVertexCount() uint {
-	return uint(C.sfVertexArray_getVertexCount(this.cptr))
+func (this *VertexArray) GetVertexCount() (count uint) {
+	cstream.ExecAndBlock(func() {
+		count = uint(C.sfVertexArray_getVertexCount(this.cptr))
+	})
+	return
 }
 
 // Get access to a vertex by its index
@@ -75,7 +80,9 @@ func (this *VertexArray) GetVertexCount() uint {
 // [0, vertex count - 1]. The behaviour is undefined
 // otherwise.
 func (this *VertexArray) GetVertex(index uint) (vert Vertex) {
-	vert.fromC(*C.sfVertexArray_getVertex(this.cptr, C.uint(index)))
+	cstream.ExecAndBlock(func() {
+		vert.fromC(*C.sfVertexArray_getVertex(this.cptr, C.uint(index)))
+	})
 	return
 }
 
@@ -85,10 +92,12 @@ func (this *VertexArray) GetVertex(index uint) (vert Vertex) {
 // [0, vertex count - 1]. The behaviour is undefined
 // otherwise.
 func (this *VertexArray) SetVertex(vertex Vertex, index uint) {
-	cVert := C.sfVertexArray_getVertex(this.cptr, C.uint(index))
-	cVert.position = vertex.Position.toC()
-	cVert.color = vertex.Color.toC()
-	cVert.texCoords = vertex.TexCoords.toC()
+	cstream.Exec(func() {
+		cVert := C.sfVertexArray_getVertex(this.cptr, C.uint(index))
+		cVert.position = vertex.Position.toC()
+		cVert.color = vertex.Color.toC()
+		cVert.texCoords = vertex.TexCoords.toC()
+	})
 }
 
 // Clear a vertex array
@@ -98,7 +107,9 @@ func (this *VertexArray) SetVertex(vertex Vertex, index uint) {
 // adding new vertices after clearing doesn't involve
 // reallocating all the memory.
 func (this *VertexArray) Clear() {
-	C.sfVertexArray_clear(this.cptr)
+	cstream.Exec(func() {
+		C.sfVertexArray_clear(this.cptr)
+	})
 }
 
 // Resize the vertex array
@@ -111,14 +122,18 @@ func (this *VertexArray) Clear() {
 //
 // 	vertexCount: New size of the array (number of vertices)
 func (this *VertexArray) Resize(vertexCount uint) {
-	C.sfVertexArray_resize(this.cptr, C.uint(vertexCount))
+	cstream.Exec(func() {
+		C.sfVertexArray_resize(this.cptr, C.uint(vertexCount))
+	})
 }
 
 // Add a vertex to a vertex array array
 //
 // 	vertex: Vertex to add
 func (this *VertexArray) Append(vertex Vertex) {
-	C.sfVertexArray_append(this.cptr, vertex.toC())
+	cstream.Exec(func() {
+		C.sfVertexArray_append(this.cptr, vertex.toC())
+	})
 }
 
 // Set the type of primitives of a vertex array
@@ -133,12 +148,17 @@ func (this *VertexArray) Append(vertex Vertex) {
 //
 // 	type: Type of primitive
 func (this *VertexArray) SetPrimitiveType(ptype PrimitiveType) {
-	C.sfVertexArray_setPrimitiveType(this.cptr, C.sfPrimitiveType(ptype))
+	cstream.Exec(func() {
+		C.sfVertexArray_setPrimitiveType(this.cptr, C.sfPrimitiveType(ptype))
+	})
 }
 
 // Get the type of primitives drawn by a vertex array
-func (this *VertexArray) GetPrimitiveType() PrimitiveType {
-	return PrimitiveType(C.sfVertexArray_getPrimitiveType(this.cptr))
+func (this *VertexArray) GetPrimitiveType() (ptype PrimitiveType) {
+	cstream.ExecAndBlock(func() {
+		ptype = PrimitiveType(C.sfVertexArray_getPrimitiveType(this.cptr))
+	})
+	return
 }
 
 // Compute the bounding rectangle of a vertex array
@@ -146,7 +166,9 @@ func (this *VertexArray) GetPrimitiveType() PrimitiveType {
 // This function returns the axis-aligned rectangle that
 // contains all the vertices of the array
 func (this *VertexArray) GetBounds() (rect FloatRect) {
-	rect.fromC(C.sfVertexArray_getBounds(this.cptr))
+	cstream.ExecAndBlock(func() {
+		rect.fromC(C.sfVertexArray_getBounds(this.cptr))
+	})
 	return
 }
 

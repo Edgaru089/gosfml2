@@ -234,8 +234,11 @@ func (this *RenderWindow) Clear(color Color) {
 }
 
 // Get the current active view of a render window
-func (this *RenderWindow) GetView() *View {
-	return this.view
+func (this *RenderWindow) GetView() (view *View) {
+	cstream.ExecAndBlock(func() {
+		view = this.view
+	})
+	return
 }
 
 // Get the default view of a render window
@@ -247,8 +250,8 @@ func (this *RenderWindow) GetDefaultView() *View {
 //
 // 	view: Pointer to the new view
 func (this *RenderWindow) SetView(view *View) {
-	this.view = view
 	cstream.Exec(func() {
+		this.view = view
 		C.sfRenderWindow_setView(this.cptr, view.toCPtr())
 	})
 }
@@ -257,7 +260,9 @@ func (this *RenderWindow) SetView(view *View) {
 //
 // 	view: Target view
 func (this *RenderWindow) GetViewport(view *View) (viewport IntRect) {
-	viewport.fromC(C.sfRenderWindow_getViewport(this.cptr, view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		viewport.fromC(C.sfRenderWindow_getViewport(this.cptr, view.toCPtr()))
+	})
 	return
 }
 
@@ -291,7 +296,9 @@ func (this *RenderWindow) Draw(drawer Drawer, renderStates RenderStates) {
 //
 // return The converted point, in "world" units
 func (this *RenderWindow) MapPixelToCoords(pos Vector2i, view *View) (coords Vector2f) {
-	coords.fromC(C.sfRenderWindow_mapPixelToCoords(this.cptr, pos.toC(), view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		coords.fromC(C.sfRenderWindow_mapPixelToCoords(this.cptr, pos.toC(), view.toCPtr()))
+	})
 	return
 }
 
@@ -316,7 +323,9 @@ func (this *RenderWindow) MapPixelToCoords(pos Vector2i, view *View) (coords Vec
 //
 // return The converted point, in target coordinates (pixels)
 func (this *RenderWindow) MapCoordsToPixel(pos Vector2f, view *View) (coords Vector2i) {
-	coords.fromC(C.sfRenderWindow_mapCoordsToPixel(this.cptr, pos.toC(), view.toCPtr()))
+	cstream.ExecAndBlock(func() {
+		coords.fromC(C.sfRenderWindow_mapCoordsToPixel(this.cptr, pos.toC(), view.toCPtr()))
+	})
 	return
 }
 
