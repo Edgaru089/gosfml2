@@ -61,7 +61,9 @@ func NewRenderWindow(videoMode VideoMode, title string, style int, contextSettin
 
 // Get the creation settings of a render window
 func (this *RenderWindow) GetSettings() (settings ContextSettings) {
-	settings.fromC(C.sfRenderWindow_getSettings(this.cptr))
+	cstream.ExecAndBlock(func() {
+		settings.fromC(C.sfRenderWindow_getSettings(this.cptr))
+	})
 	return
 }
 
@@ -69,12 +71,16 @@ func (this *RenderWindow) GetSettings() (settings ContextSettings) {
 //
 // 	size: New size, in pixels
 func (this *RenderWindow) SetSize(size Vector2u) {
-	C.sfRenderWindow_setSize(this.cptr, size.toC())
+	cstream.Exec(func() {
+		C.sfRenderWindow_setSize(this.cptr, size.toC())
+	})
 }
 
 // Get the size of the rendering region of a render window
 func (this *RenderWindow) GetSize() (size Vector2u) {
-	size.fromC(C.sfRenderWindow_getSize(this.cptr))
+	cstream.ExecAndBlock(func() {
+		size.fromC(C.sfRenderWindow_getSize(this.cptr))
+	})
 	return
 }
 
@@ -84,23 +90,32 @@ func (this *RenderWindow) GetSize() (size Vector2u) {
 //
 // 	pos: New position, in pixels
 func (this *RenderWindow) SetPosition(pos Vector2i) {
-	C.sfRenderWindow_setPosition(this.cptr, pos.toC())
+	cstream.Exec(func() {
+		C.sfRenderWindow_setPosition(this.cptr, pos.toC())
+	})
 }
 
 // Get the position of a render window
 func (this *RenderWindow) GetPosition() (pos Vector2i) {
-	pos.fromC(C.sfRenderWindow_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		pos.fromC(C.sfRenderWindow_getPosition(this.cptr))
+	})
 	return
 }
 
 // Tell whether or not a render window is opened
-func (this *RenderWindow) IsOpen() bool {
-	return sfBool2Go(C.sfRenderWindow_isOpen(this.cptr))
+func (this *RenderWindow) IsOpen() (open bool) {
+	cstream.ExecAndBlock(func() {
+		open = sfBool2Go(C.sfRenderWindow_isOpen(this.cptr))
+	})
+	return
 }
 
 // Close a render window (but doesn't destroy the internal data)
 func (this *RenderWindow) Close() {
-	C.sfRenderWindow_close(this.cptr)
+	cstream.Exec(func() {
+		C.sfRenderWindow_close(this.cptr)
+	})
 }
 
 // Destroy an existing render window
@@ -113,9 +128,10 @@ func (this *RenderWindow) destroy() {
 //
 // 	title: New title
 func (this *RenderWindow) SetTitle(title string) {
-	utf32 := strToRunes(title)
-
-	C.sfRenderWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
+	cstream.Exec(func() {
+		utf32 := strToRunes(title)
+		C.sfRenderWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
+	})
 }
 
 // Change a render window's icon
@@ -125,7 +141,9 @@ func (this *RenderWindow) SetTitle(title string) {
 // 	pixels: Slice of pixels, format must be RGBA 32 bits
 func (this *RenderWindow) SetIcon(width, height uint, data []byte) error {
 	if len(data) >= int(width*height*4) {
-		C.sfRenderWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
+		cstream.Exec(func() {
+			C.sfRenderWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
+		})
 		return nil
 	}
 	return errors.New("SetIcon: Slice length does not match specified dimensions")
@@ -138,7 +156,9 @@ func (this *RenderWindow) PollEvent() Event {
 	cEvent := C.sfEvent{}
 	var hasEvent C.sfBool
 
-	hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
+	cstream.ExecAndBlock(func() {
+		hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
+	})
 
 	if hasEvent != 0 {
 		return handleEvent(&cEvent)
@@ -149,7 +169,11 @@ func (this *RenderWindow) PollEvent() Event {
 // Wait for an event and return it
 func (this *RenderWindow) WaitEvent() Event {
 	cEvent := C.sfEvent{}
-	hasError := C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
+	var hasError C.sfBool
+
+	cstream.ExecAndBlock(func() {
+		hasError = C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
+	})
 
 	if hasError != 0 {
 		return handleEvent(&cEvent)
@@ -170,7 +194,9 @@ func (this *RenderWindow) SetVSyncEnabled(enabled bool) {
 //
 // 	visible: true to show, false to hide
 func (this *RenderWindow) SetMouseCursorVisible(visible bool) {
-	C.sfRenderWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
+	})
 }
 
 // Enable or disable automatic key-repeat
@@ -181,14 +207,18 @@ func (this *RenderWindow) SetMouseCursorVisible(visible bool) {
 //
 // Key repeat is enabled by default.
 func (this *RenderWindow) SetKeyRepeatEnabled(enabled bool) {
-	C.sfRenderWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
+	})
 }
 
 // Show or hide a render window
 //
 // 	visible: true to show the window, false to hide it
 func (this *RenderWindow) SetVisible(visible bool) {
-	C.sfRenderWindow_setVisible(this.cptr, goBool2C(visible))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setVisible(this.cptr, goBool2C(visible))
+	})
 }
 
 // Activate or deactivate a render window as the current target for rendering
@@ -207,14 +237,18 @@ func (this *RenderWindow) SetActive(active bool) (success bool) {
 //
 // 	limit: Framerate limit, in frames per seconds (use 0 to disable limit)
 func (this *RenderWindow) SetFramerateLimit(limit uint) {
-	C.sfRenderWindow_setFramerateLimit(this.cptr, C.uint(limit))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setFramerateLimit(this.cptr, C.uint(limit))
+	})
 }
 
 // Change the joystick threshold, ie. the value below which no move event will be generated
 //
 // 	threshold: New threshold, in range [0, 100]
 func (this *RenderWindow) SetJoystickThreshold(threshold float32) {
-	C.sfRenderWindow_setJoystickThreshold(this.cptr, C.float(threshold))
+	cstream.Exec(func() {
+		C.sfRenderWindow_setJoystickThreshold(this.cptr, C.float(threshold))
+	})
 }
 
 // Display a render window on screen

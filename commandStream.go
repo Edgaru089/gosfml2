@@ -32,7 +32,7 @@ type CommandStream struct {
 
 //Creates a new command stream
 func newCommandStream() CommandStream {
-	cs := CommandStream{make(chan func(), 16)}
+	cs := CommandStream{make(chan func(), 4)}
 
 	go func() {
 		runtime.LockOSThread()

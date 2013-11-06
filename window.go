@@ -86,7 +86,10 @@ func NewWindow(videoMode VideoMode, title string, style int, contextSettings Con
 
 // Get the creation settings of a window
 func (this *Window) GetSettings() (settings ContextSettings) {
-	settings.fromC(C.sfWindow_getSettings(this.cptr))
+	cstream.ExecAndBlock(func() {
+		settings.fromC(C.sfWindow_getSettings(this.cptr))
+	})
+
 	return
 }
 
@@ -94,13 +97,18 @@ func (this *Window) GetSettings() (settings ContextSettings) {
 //
 // 	size: New size, in pixels
 func (this *Window) SetSize(size Vector2u) {
-	C.sfWindow_setSize(this.cptr, size.toC())
+	cstream.Exec(func() {
+		C.sfWindow_setSize(this.cptr, size.toC())
+	})
 }
 
 // Get the size of the rendering region of a window
-func (this *Window) GetSize() Vector2u {
-	size := C.sfWindow_getSize(this.cptr)
-	return Vector2u{uint(size.x), uint(size.y)}
+func (this *Window) GetSize() (size Vector2u) {
+	cstream.ExecAndBlock(func() {
+		csize := C.sfWindow_getSize(this.cptr)
+		size = Vector2u{uint(csize.x), uint(csize.y)}
+	})
+	return
 }
 
 // Change the position of a window on screen
@@ -114,18 +122,25 @@ func (this *Window) SetPosition(pos Vector2i) {
 
 // Get the position of a render window
 func (this *Window) GetPosition() (pos Vector2i) {
-	pos.fromC(C.sfWindow_getPosition(this.cptr))
+	cstream.ExecAndBlock(func() {
+		pos.fromC(C.sfWindow_getPosition(this.cptr))
+	})
 	return
 }
 
 // Tell whether or not a window is opened
-func (this *Window) IsOpen() bool {
-	return sfBool2Go(C.sfWindow_isOpen(this.cptr))
+func (this *Window) IsOpen() (open bool) {
+	cstream.ExecAndBlock(func() {
+		open = sfBool2Go(C.sfWindow_isOpen(this.cptr))
+	})
+	return
 }
 
 // Close a window (but doesn't destroy the internal data)
 func (this *Window) Close() {
-	C.sfWindow_close(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfWindow_close(this.cptr)
+	})
 }
 
 // Destroy an existing window
@@ -139,7 +154,10 @@ func (this *Window) destroy() {
 // returns nil if there are no events left.
 func (this *Window) PollEvent() Event {
 	cEvent := C.sfEvent{}
-	hasEvent := C.sfWindow_pollEvent(this.cptr, &cEvent)
+	var hasEvent C.sfBool
+	cstream.ExecAndBlock(func() {
+		hasEvent = C.sfWindow_pollEvent(this.cptr, &cEvent)
+	})
 
 	if hasEvent != 0 {
 		return handleEvent(&cEvent)
@@ -150,7 +168,11 @@ func (this *Window) PollEvent() Event {
 // Wait for an event and return it
 func (this *Window) WaitEvent() Event {
 	cEvent := C.sfEvent{}
-	hasError := C.sfWindow_waitEvent(this.cptr, &cEvent)
+	var hasError C.sfBool
+
+	cstream.ExecAndBlock(func() {
+		hasError = C.sfWindow_waitEvent(this.cptr, &cEvent)
+	})
 
 	if hasError != 0 {
 		return handleEvent(&cEvent)
@@ -162,9 +184,10 @@ func (this *Window) WaitEvent() Event {
 //
 // 	title: New title
 func (this *Window) SetTitle(title string) {
-	utf32 := strToRunes(title)
-
-	C.sfWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
+	cstream.Exec(func() {
+		utf32 := strToRunes(title)
+		C.sfWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
+	})
 }
 
 // Change a window's icon
@@ -174,7 +197,9 @@ func (this *Window) SetTitle(title string) {
 // 	pixels: Slice of pixels, format must be RGBA 32 bits
 func (this *Window) SetIcon(width, height uint, data []byte) error {
 	if len(data) >= int(width*height*4) {
-		C.sfWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
+		cstream.Exec(func() {
+			C.sfWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
+		})
 		return nil
 	}
 	return errors.New("SetIcon: Slice length does not match specified dimensions")
@@ -184,14 +209,18 @@ func (this *Window) SetIcon(width, height uint, data []byte) error {
 //
 // 	limit: Framerate limit, in frames per seconds (use 0 to disable limit)
 func (this *Window) SetFramerateLimit(limit uint) {
-	C.sfWindow_setFramerateLimit(this.cptr, C.uint(limit))
+	cstream.Exec(func() {
+		C.sfWindow_setFramerateLimit(this.cptr, C.uint(limit))
+	})
 }
 
 ///Change the joystick threshold, ie. the value below which no move event will be generated
 //
 // threshold: New threshold, in range [0, 100]
 func (this *Window) SetJoystickThreshold(threshold float32) {
-	C.sfWindow_setJoystickThreshold(this.cptr, C.float(threshold))
+	cstream.Exec(func() {
+		C.sfWindow_setJoystickThreshold(this.cptr, C.float(threshold))
+	})
 }
 
 // Enable or disable automatic key-repeat
@@ -202,19 +231,25 @@ func (this *Window) SetJoystickThreshold(threshold float32) {
 //
 // Key repeat is enabled by default.
 func (this *Window) SetKeyRepeatEnabled(enabled bool) {
-	C.sfWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
+	cstream.Exec(func() {
+		C.sfWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
+	})
 }
 
 // Display a window on screen
 func (this *Window) Display() {
-	C.sfWindow_display(this.cptr)
+	cstream.ExecAndBlock(func() {
+		C.sfWindow_display(this.cptr)
+	})
 }
 
 // Enable / disable vertical synchronization on a window
 //
 // 	enabled: true to enable v-sync, false to deactivate
 func (this *Window) SetVSyncEnabled(enabled bool) {
-	C.sfWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
+	cstream.Exec(func() {
+		C.sfWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
+	})
 }
 
 // Activate or deactivate a window as the current target for rendering
@@ -222,13 +257,18 @@ func (this *Window) SetVSyncEnabled(enabled bool) {
 // 	active: true to activate, false to deactivate
 //
 // return True if operation was successful, false otherwise
-func (this *Window) SetActive(active bool) bool {
-	return sfBool2Go(C.sfWindow_setActive(this.cptr, goBool2C(active)))
+func (this *Window) SetActive(active bool) (success bool) {
+	cstream.ExecAndBlock(func() {
+		success = sfBool2Go(C.sfWindow_setActive(this.cptr, goBool2C(active)))
+	})
+	return
 }
 
 // Show or hide the mouse cursor on a render window
 //
 // 	visible: true to show, false to hide
 func (this *Window) SetMouseCursorVisible(visible bool) {
-	C.sfWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
+	cstream.Exec(func() {
+		C.sfWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
+	})
 }
