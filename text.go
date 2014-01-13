@@ -208,7 +208,7 @@ func (this *Text) GetInverseTransform() (transform Transform) {
 
 // Set the string of a text (from a unicode string)
 func (this *Text) SetString(text string) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		runes := strToRunes(text)
 		C.sfText_setUnicodeString(this.cptr, (*C.sfUint32)(unsafe.Pointer(&runes[0])))
 	})
@@ -237,7 +237,9 @@ func (this *Text) SetCharacterSize(size uint) {
 // example TextBold | TextItalic.
 // The default style is TextRegular.
 func (this *Text) SetStyle(style TextStyle) {
-	C.sfText_setStyle(this.cptr, C.sfUint32(style))
+	cstream.Exec(func() {
+		C.sfText_setStyle(this.cptr, C.sfUint32(style))
+	})
 }
 
 // Set the global color of a text
