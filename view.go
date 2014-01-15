@@ -43,8 +43,10 @@ func NewViewFromRect(rect FloatRect) *View {
 
 // Destroy an existing view
 func (this *View) destroy() {
-	C.sfView_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfView_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Copy an existing view

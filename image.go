@@ -112,8 +112,10 @@ func (this *Image) Copy() *Image {
 
 // Destroy an existing image
 func (this *Image) destroy() {
-	C.sfImage_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfImage_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Save an image to a file on disk

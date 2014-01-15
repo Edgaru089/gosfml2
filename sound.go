@@ -55,8 +55,10 @@ func (this *Sound) Copy() *Sound {
 
 // Destroy a sound
 func (this *Sound) destroy() {
-	C.sfSound_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfSound_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Start or resume playing a sound

@@ -25,7 +25,11 @@ type Sprite struct {
 
 // Create a new sprite with a given texture (can be nil to use no texture)
 func NewSprite(tex *Texture) *Sprite {
-	shape := &Sprite{C.sfSprite_create(), nil}
+	shape := &Sprite{texture: nil}
+	cstream.ExecAndBlock(func() {
+		shape.cptr = C.sfSprite_create()
+	})
+
 	runtime.SetFinalizer(shape, (*Sprite).destroy)
 
 	//set texture
@@ -45,8 +49,10 @@ func (this *Sprite) Copy() (sprite *Sprite) {
 
 // Destroy an existing sprite
 func (this *Sprite) destroy() {
-	C.sfSprite_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfSprite_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Set the position of a sprite

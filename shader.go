@@ -106,8 +106,10 @@ func NewShaderFromMemory(vertexShader, fragmentShader string) (shader *Shader, e
 
 // Destroy an existing shader
 func (this *Shader) destroy() {
-	C.sfShader_destroy(this.toCPtr())
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfShader_destroy(this.toCPtr())
+		this.cptr = nil
+	})
 }
 
 // Change a color parameter of a shader

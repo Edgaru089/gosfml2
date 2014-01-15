@@ -46,7 +46,10 @@ type Vertex struct {
 
 // Create a new vertex array
 func NewVertexArray() *VertexArray {
-	vertexArray := &VertexArray{C.sfVertexArray_create()}
+	vertexArray := &VertexArray{}
+	cstream.ExecAndBlock(func() {
+		vertexArray.cptr = C.sfVertexArray_create()
+	})
 	runtime.SetFinalizer(vertexArray, (*VertexArray).destroy)
 	return vertexArray
 }
@@ -62,8 +65,10 @@ func (this *VertexArray) Copy() (vertexArray *VertexArray) {
 
 // Destroy an existing vertex array
 func (this *VertexArray) destroy() {
-	C.sfVertexArray_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfVertexArray_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Return the vertex count of a vertex array

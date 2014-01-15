@@ -120,8 +120,10 @@ func (this *RenderWindow) Close() {
 
 // Destroy an existing render window
 func (this *RenderWindow) destroy() {
-	C.sfRenderWindow_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfRenderWindow_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Change the title of a render window

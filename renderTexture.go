@@ -48,8 +48,10 @@ func NewRenderTexture(width, height uint, depthbuffer bool) *RenderTexture {
 
 // Destroy an existing render texture
 func (this *RenderTexture) destroy() {
-	C.sfRenderTexture_destroy(this.cptr)
-	this.cptr = nil
+	cstream.ExecAndBlock(func() {
+		C.sfRenderTexture_destroy(this.cptr)
+		this.cptr = nil
+	})
 }
 
 // Get the size of the rendering region of a render texture
