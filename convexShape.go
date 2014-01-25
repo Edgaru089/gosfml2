@@ -39,10 +39,8 @@ func (this *ConvexShape) Copy() (shape *ConvexShape) {
 }
 
 func (this *ConvexShape) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfConvexShape_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfConvexShape_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Set the position of a convex shape

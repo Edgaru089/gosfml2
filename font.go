@@ -71,10 +71,8 @@ func (this *Font) Copy() (font *Font) {
 }
 
 func (this *Font) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfFont_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfFont_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Retrieve a glyph of the font

@@ -49,10 +49,8 @@ func (this *Sprite) Copy() (sprite *Sprite) {
 
 // Destroy an existing sprite
 func (this *Sprite) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfSprite_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfSprite_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Set the position of a sprite

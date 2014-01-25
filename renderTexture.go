@@ -48,10 +48,8 @@ func NewRenderTexture(width, height uint, depthbuffer bool) *RenderTexture {
 
 // Destroy an existing render texture
 func (this *RenderTexture) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfRenderTexture_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfRenderTexture_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Get the size of the rendering region of a render texture
@@ -98,8 +96,11 @@ func (this *RenderTexture) SetView(view *View) {
 }
 
 // Get the current active view of a render texture
-func (this *RenderTexture) GetView() *View {
-	return this.view
+func (this *RenderTexture) GetView() (view *View) {
+	cstream.ExecAndBlock(func() {
+		view = this.view
+	})
+	return
 }
 
 // Get the default view of a render texture

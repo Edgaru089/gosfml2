@@ -42,10 +42,8 @@ func (this *CircleShape) Copy() (shape *CircleShape) {
 
 // Destroy an existing circle Shape
 func (this *CircleShape) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfCircleShape_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfCircleShape_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Set the position of a circle shape

@@ -32,7 +32,7 @@ type CommandStream struct {
 
 //Creates a new command stream
 func newCommandStream() CommandStream {
-	cs := CommandStream{make(chan func(), 4)}
+	cs := CommandStream{make(chan func(), 8)}
 
 	go func() {
 		runtime.LockOSThread()
@@ -44,13 +44,14 @@ func newCommandStream() CommandStream {
 
 //Executes the pending commands
 func (this CommandStream) Run() {
-	for {
-		(<-this.commands)()
+	for f := range this.commands {
+		f()
 	}
 }
 
 //Add a command to the stream
 func (this CommandStream) Exec(f func()) {
+	//this.ExecAndBlock(f)
 	this.commands <- f
 }
 

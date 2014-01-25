@@ -41,10 +41,8 @@ func (this *RectangleShape) Copy() (shape *RectangleShape) {
 
 // Destroy an existing rectangle shape
 func (this *RectangleShape) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfRectangleShape_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfRectangleShape_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Set the position of a rectangle shape

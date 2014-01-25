@@ -110,10 +110,8 @@ func (this *Texture) Copy() (texture *Texture) {
 
 // Destroy an existing texture
 func (this *Texture) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfTexture_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfTexture_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Return the size of the texture

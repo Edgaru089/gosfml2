@@ -73,10 +73,8 @@ func NewMusicFromMemory(data []byte) (music *Music, err error) {
 
 // Destroy a music
 func (this *Music) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfMusic_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfMusic_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Start or resume playing a music

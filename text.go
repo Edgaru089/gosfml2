@@ -52,10 +52,8 @@ func NewText(font *Font) *Text {
 
 // Destroy an existing text
 func (this *Text) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfText_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfText_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Copy an existing text

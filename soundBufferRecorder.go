@@ -38,10 +38,8 @@ func NewSoundBufferRecorder() (*SoundBufferRecorder, error) {
 
 // Destroy an existing SoundBufferRecorder
 func (this *SoundBufferRecorder) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfSoundBufferRecorder_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfSoundBufferRecorder_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Start the capture of a sound recorder recorder

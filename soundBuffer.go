@@ -108,10 +108,8 @@ func (this *SoundBuffer) Copy() *SoundBuffer {
 
 // Destroy a sound buffer
 func (this *SoundBuffer) destroy() {
-	cstream.ExecAndBlock(func() {
-		C.sfSoundBuffer_destroy(this.cptr)
-		this.cptr = nil
-	})
+	C.sfSoundBuffer_destroy(this.cptr)
+	this.cptr = nil
 }
 
 // Save a sound buffer to an audio file
