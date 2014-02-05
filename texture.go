@@ -32,7 +32,7 @@ type Texture struct {
 // 	height: Texture height
 func NewTexture(width, height uint) (texture *Texture, err error) {
 	texture = &Texture{}
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		texture.cptr = C.sfTexture_create(C.uint(width), C.uint(height))
 	})
 	runtime.SetFinalizer(texture, (*Texture).destroy)
@@ -52,7 +52,7 @@ func NewTextureFromFile(file string, area *IntRect) (texture *Texture, err error
 	cFile := C.CString(file)
 	defer C.free(unsafe.Pointer(cFile))
 	texture = &Texture{}
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		texture.cptr = C.sfTexture_createFromFile(cFile, area.toCPtr())
 	})
 	runtime.SetFinalizer(texture, (*Texture).destroy)
@@ -71,7 +71,7 @@ func NewTextureFromFile(file string, area *IntRect) (texture *Texture, err error
 func NewTextureFromMemory(data []byte, area *IntRect) (texture *Texture, err error) {
 	if len(data) > 0 {
 		texture = &Texture{}
-		cstream.ExecAndBlock(func() {
+		cstream.Exec(func() {
 			texture.cptr = C.sfTexture_createFromMemory(unsafe.Pointer(&data[0]), C.size_t(len(data)), area.toCPtr())
 		})
 		runtime.SetFinalizer(texture, (*Texture).destroy)
@@ -86,7 +86,7 @@ func NewTextureFromMemory(data []byte, area *IntRect) (texture *Texture, err err
 // 	area:  Area of the source image to load (NULL to load the entire image)
 func NewTextureFromImage(image *Image, area *IntRect) (texture *Texture, err error) {
 	texture = &Texture{}
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		texture.cptr = C.sfTexture_createFromImage(image.toCPtr(), area.toCPtr())
 	})
 	runtime.SetFinalizer(texture, (*Texture).destroy)
@@ -100,7 +100,7 @@ func NewTextureFromImage(image *Image, area *IntRect) (texture *Texture, err err
 
 // Copy an existing texture
 func (this *Texture) Copy() (texture *Texture) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		texture = &Texture{C.sfTexture_copy(this.cptr)}
 		runtime.SetFinalizer(texture, (*Texture).destroy)
 	})
@@ -116,7 +116,7 @@ func (this *Texture) destroy() {
 
 // Return the size of the texture
 func (this *Texture) GetSize() (size Vector2u) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		size.fromC(C.sfTexture_getSize(this.cptr))
 	})
 	return
@@ -128,7 +128,7 @@ func (this *Texture) GetSize() (size Vector2u) {
 // 	x:       X offset in the texture where to copy the source pixels
 // 	y:       Y offset in the texture where to copy the source pixels
 func (this *Texture) UpdateFromWindow(window *Window, x, y uint) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_updateFromWindow(this.cptr, window.cptr, C.uint(x), C.uint(y))
 	})
 }
@@ -139,7 +139,7 @@ func (this *Texture) UpdateFromWindow(window *Window, x, y uint) {
 // 	x:            X offset in the texture where to copy the source pixels
 // 	y:            Y offset in the texture where to copy the source pixels
 func (this *Texture) UpdateFromRenderWindow(window *RenderWindow, x, y uint) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_updateFromRenderWindow(this.cptr, window.cptr, C.uint(x), C.uint(y))
 	})
 }
@@ -150,7 +150,7 @@ func (this *Texture) UpdateFromRenderWindow(window *RenderWindow, x, y uint) {
 // 	x:       X offset in the texture where to copy the source pixels
 // 	y:       Y offset in the texture where to copy the source pixels
 func (this *Texture) UpdateFromImage(image *Image, x, y uint) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_updateFromImage(this.cptr, image.toCPtr(), C.uint(x), C.uint(y))
 	})
 }
@@ -164,7 +164,7 @@ func (this *Texture) UpdateFromImage(image *Image, x, y uint) {
 // 	y:       Y offset in the texture where to copy the source pixels
 func (this *Texture) UpdateFromPixels(pixels []byte, width, height, x, y uint) {
 	if len(pixels) > 0 {
-		cstream.ExecAndBlock(func() {
+		cstream.Exec(func() {
 			C.sfTexture_updateFromPixels(this.cptr, (*C.sfUint8)(unsafe.Pointer(&pixels[0])), C.uint(width), C.uint(height), C.uint(x), C.uint(y))
 		})
 	}
@@ -172,14 +172,14 @@ func (this *Texture) UpdateFromPixels(pixels []byte, width, height, x, y uint) {
 
 // Enable or disable the smooth filter on a texture
 func (this *Texture) SetSmooth(smooth bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_setSmooth(this.cptr, goBool2C(smooth))
 	})
 }
 
 // Tell whether the smooth filter is enabled or not for a texture
 func (this *Texture) IsSmooth() (smooth bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		smooth = sfBool2Go(C.sfTexture_isSmooth(this.cptr))
 	})
 	return
@@ -201,14 +201,14 @@ func (this *Texture) IsSmooth() (smooth bool) {
 // dimensions (such as 256x128).
 // Repeating is disabled by default.
 func (this *Texture) SetRepeated(repeated bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_setRepeated(this.cptr, goBool2C(repeated))
 	})
 }
 
 // Tell whether a texture is repeated or not
 func (this *Texture) IsRepeated() (repeated bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		repeated = sfBool2Go(C.sfTexture_isRepeated(this.cptr))
 	})
 	return
@@ -216,7 +216,7 @@ func (this *Texture) IsRepeated() (repeated bool) {
 
 // Get the maximum texture size allowed
 func GetMaximumTextureSize() (maxSize uint) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		maxSize = uint(C.sfTexture_getMaximumSize())
 	})
 	return
@@ -230,7 +230,7 @@ func GetMaximumTextureSize() (maxSize uint) {
 //
 // 	texture: Pointer to the texture to bind, can be nil to use no texture
 func BindTexture(texture *Texture) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfTexture_bind(texture.toCPtr())
 	})
 }

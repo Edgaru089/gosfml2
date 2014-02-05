@@ -127,10 +127,11 @@ func (this *Shader) destroy() {
 func (this *Shader) SetColorParameter(name string, color Color) {
 	cname := C.CString(name)
 
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfShader_setColorParameter(this.toCPtr(), cname, color.toC())
 		defer C.free(unsafe.Pointer(cname))
 	})
+
 }
 
 // Change a matrix parameter of a shader
@@ -144,10 +145,11 @@ func (this *Shader) SetColorParameter(name string, color Color) {
 func (this *Shader) SetTransformParameter(name string, trans Transform) {
 	cname := C.CString(name)
 
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfShader_setTransformParameter(this.toCPtr(), cname, trans.toC())
 		defer C.free(unsafe.Pointer(cname))
 	})
+
 }
 
 // Change a texture parameter of a shader
@@ -161,10 +163,11 @@ func (this *Shader) SetTransformParameter(name string, trans Transform) {
 func (this *Shader) SetTextureParameter(name string, texture *Texture) {
 	cname := C.CString(name)
 
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfShader_setTextureParameter(this.toCPtr(), cname, texture.cptr)
 		defer C.free(unsafe.Pointer(cname))
 	})
+
 }
 
 // Change a texture parameter of a shader
@@ -179,10 +182,11 @@ func (this *Shader) SetTextureParameter(name string, texture *Texture) {
 func (this *Shader) SetCurrentTextureParameter(name string) {
 	cname := C.CString(name)
 
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfShader_setCurrentTextureParameter(this.toCPtr(), cname)
 		defer C.free(unsafe.Pointer(cname))
 	})
+
 }
 
 // Change a n-components vector parameter of a shader
@@ -194,26 +198,29 @@ func (this *Shader) SetFloatParameter(name string, data ...float32) {
 
 	switch len(data) {
 	case 1:
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfShader_setFloatParameter(this.toCPtr(), cname, C.float(data[0]))
 			defer C.free(unsafe.Pointer(cname))
 		})
 
 	case 2:
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfShader_setFloat2Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]))
 			defer C.free(unsafe.Pointer(cname))
 		})
+
 	case 3:
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfShader_setFloat3Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]))
 			defer C.free(unsafe.Pointer(cname))
 		})
+
 	case 4:
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfShader_setFloat4Parameter(this.toCPtr(), cname, C.float(data[0]), C.float(data[1]), C.float(data[2]), C.float(data[3]))
 			defer C.free(unsafe.Pointer(cname))
 		})
+
 	default:
 		panic("Shader.SetFloatParameter: Invalid amount of data.")
 	}
@@ -227,7 +234,7 @@ func (this *Shader) SetFloatParameter(name string, data ...float32) {
 //
 // 	shader: Shader to bind, can be nil to use no shader
 func BindShader(shader *Shader) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfShader_bind(shader.toCPtr())
 	})
 }

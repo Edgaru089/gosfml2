@@ -76,7 +76,9 @@ func NewWindow(videoMode VideoMode, title string, style int, contextSettings Con
 	cs := contextSettings.toC()
 
 	//create the window
-	window = &Window{C.sfWindow_createUnicode(videoMode.toC(), (*C.sfUint32)(unsafe.Pointer(&utf32[0])), C.sfUint32(style), &cs)}
+	cstream.Exec(func() {
+		window = &Window{C.sfWindow_createUnicode(videoMode.toC(), (*C.sfUint32)(unsafe.Pointer(&utf32[0])), C.sfUint32(style), &cs)}
+	})
 
 	//GC cleanup
 	runtime.SetFinalizer(window, (*Window).destroy)
@@ -86,7 +88,7 @@ func NewWindow(videoMode VideoMode, title string, style int, contextSettings Con
 
 // Get the creation settings of a window
 func (this *Window) GetSettings() (settings ContextSettings) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		settings.fromC(C.sfWindow_getSettings(this.cptr))
 	})
 
@@ -97,14 +99,15 @@ func (this *Window) GetSettings() (settings ContextSettings) {
 //
 // 	size: New size, in pixels
 func (this *Window) SetSize(size Vector2u) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setSize(this.cptr, size.toC())
 	})
+
 }
 
 // Get the size of the rendering region of a window
 func (this *Window) GetSize() (size Vector2u) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		csize := C.sfWindow_getSize(this.cptr)
 		size = Vector2u{uint(csize.x), uint(csize.y)}
 	})
@@ -122,7 +125,7 @@ func (this *Window) SetPosition(pos Vector2i) {
 
 // Get the position of a render window
 func (this *Window) GetPosition() (pos Vector2i) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		pos.fromC(C.sfWindow_getPosition(this.cptr))
 	})
 	return
@@ -130,7 +133,7 @@ func (this *Window) GetPosition() (pos Vector2i) {
 
 // Tell whether or not a window is opened
 func (this *Window) IsOpen() (open bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		open = sfBool2Go(C.sfWindow_isOpen(this.cptr))
 	})
 	return
@@ -138,7 +141,7 @@ func (this *Window) IsOpen() (open bool) {
 
 // Close a window (but doesn't destroy the internal data)
 func (this *Window) Close() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfWindow_close(this.cptr)
 	})
 }
@@ -155,7 +158,7 @@ func (this *Window) destroy() {
 func (this *Window) PollEvent() Event {
 	cEvent := C.sfEvent{}
 	var hasEvent C.sfBool
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		hasEvent = C.sfWindow_pollEvent(this.cptr, &cEvent)
 	})
 
@@ -170,7 +173,7 @@ func (this *Window) WaitEvent() Event {
 	cEvent := C.sfEvent{}
 	var hasError C.sfBool
 
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		hasError = C.sfWindow_waitEvent(this.cptr, &cEvent)
 	})
 
@@ -184,10 +187,11 @@ func (this *Window) WaitEvent() Event {
 //
 // 	title: New title
 func (this *Window) SetTitle(title string) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		utf32 := strToRunes(title)
 		C.sfWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
 	})
+
 }
 
 // Change a window's icon
@@ -197,9 +201,10 @@ func (this *Window) SetTitle(title string) {
 // 	pixels: Slice of pixels, format must be RGBA 32 bits
 func (this *Window) SetIcon(width, height uint, data []byte) error {
 	if len(data) >= int(width*height*4) {
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
 		})
+
 		return nil
 	}
 	return errors.New("SetIcon: Slice length does not match specified dimensions")
@@ -209,18 +214,20 @@ func (this *Window) SetIcon(width, height uint, data []byte) error {
 //
 // 	limit: Framerate limit, in frames per seconds (use 0 to disable limit)
 func (this *Window) SetFramerateLimit(limit uint) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setFramerateLimit(this.cptr, C.uint(limit))
 	})
+
 }
 
 ///Change the joystick threshold, ie. the value below which no move event will be generated
 //
 // threshold: New threshold, in range [0, 100]
 func (this *Window) SetJoystickThreshold(threshold float32) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setJoystickThreshold(this.cptr, C.float(threshold))
 	})
+
 }
 
 // Enable or disable automatic key-repeat
@@ -231,14 +238,15 @@ func (this *Window) SetJoystickThreshold(threshold float32) {
 //
 // Key repeat is enabled by default.
 func (this *Window) SetKeyRepeatEnabled(enabled bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
 	})
+
 }
 
 // Display a window on screen
 func (this *Window) Display() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfWindow_display(this.cptr)
 	})
 }
@@ -247,9 +255,10 @@ func (this *Window) Display() {
 //
 // 	enabled: true to enable v-sync, false to deactivate
 func (this *Window) SetVSyncEnabled(enabled bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
 	})
+
 }
 
 // Activate or deactivate a window as the current target for rendering
@@ -258,7 +267,7 @@ func (this *Window) SetVSyncEnabled(enabled bool) {
 //
 // return True if operation was successful, false otherwise
 func (this *Window) SetActive(active bool) (success bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		success = sfBool2Go(C.sfWindow_setActive(this.cptr, goBool2C(active)))
 	})
 	return
@@ -268,7 +277,8 @@ func (this *Window) SetActive(active bool) (success bool) {
 //
 // 	visible: true to show, false to hide
 func (this *Window) SetMouseCursorVisible(visible bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
 	})
+
 }

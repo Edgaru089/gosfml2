@@ -42,7 +42,7 @@ func NewRenderWindow(videoMode VideoMode, title string, style int, contextSettin
 
 	//create the window
 	window = &RenderWindow{}
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		window.cptr = C.sfRenderWindow_createUnicode(videoMode.toC(), (*C.sfUint32)(unsafe.Pointer(&utf32[0])), C.sfUint32(style), &cs)
 	})
 
@@ -61,7 +61,7 @@ func NewRenderWindow(videoMode VideoMode, title string, style int, contextSettin
 
 // Get the creation settings of a render window
 func (this *RenderWindow) GetSettings() (settings ContextSettings) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		settings.fromC(C.sfRenderWindow_getSettings(this.cptr))
 	})
 	return
@@ -71,14 +71,15 @@ func (this *RenderWindow) GetSettings() (settings ContextSettings) {
 //
 // 	size: New size, in pixels
 func (this *RenderWindow) SetSize(size Vector2u) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setSize(this.cptr, size.toC())
 	})
+
 }
 
 // Get the size of the rendering region of a render window
 func (this *RenderWindow) GetSize() (size Vector2u) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		size.fromC(C.sfRenderWindow_getSize(this.cptr))
 	})
 	return
@@ -90,14 +91,15 @@ func (this *RenderWindow) GetSize() (size Vector2u) {
 //
 // 	pos: New position, in pixels
 func (this *RenderWindow) SetPosition(pos Vector2i) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setPosition(this.cptr, pos.toC())
 	})
+
 }
 
 // Get the position of a render window
 func (this *RenderWindow) GetPosition() (pos Vector2i) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		pos.fromC(C.sfRenderWindow_getPosition(this.cptr))
 	})
 	return
@@ -105,7 +107,7 @@ func (this *RenderWindow) GetPosition() (pos Vector2i) {
 
 // Tell whether or not a render window is opened
 func (this *RenderWindow) IsOpen() (open bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		open = sfBool2Go(C.sfRenderWindow_isOpen(this.cptr))
 	})
 	return
@@ -113,9 +115,10 @@ func (this *RenderWindow) IsOpen() (open bool) {
 
 // Close a render window (but doesn't destroy the internal data)
 func (this *RenderWindow) Close() {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_close(this.cptr)
 	})
+
 }
 
 // Destroy an existing render window
@@ -128,10 +131,11 @@ func (this *RenderWindow) destroy() {
 //
 // 	title: New title
 func (this *RenderWindow) SetTitle(title string) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		utf32 := strToRunes(title)
 		C.sfRenderWindow_setUnicodeTitle(this.cptr, (*C.sfUint32)(unsafe.Pointer(&utf32[0])))
 	})
+
 }
 
 // Change a render window's icon
@@ -141,9 +145,10 @@ func (this *RenderWindow) SetTitle(title string) {
 // 	pixels: Slice of pixels, format must be RGBA 32 bits
 func (this *RenderWindow) SetIcon(width, height uint, data []byte) error {
 	if len(data) >= int(width*height*4) {
-		cstream.Exec(func() {
+		cstream.Enqueue(func() {
 			C.sfRenderWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
 		})
+
 		return nil
 	}
 	return errors.New("SetIcon: Slice length does not match specified dimensions")
@@ -156,7 +161,7 @@ func (this *RenderWindow) PollEvent() Event {
 	cEvent := C.sfEvent{}
 	var hasEvent C.sfBool
 
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
 	})
 
@@ -171,7 +176,7 @@ func (this *RenderWindow) WaitEvent() Event {
 	cEvent := C.sfEvent{}
 	var hasError C.sfBool
 
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		hasError = C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
 	})
 
@@ -185,18 +190,20 @@ func (this *RenderWindow) WaitEvent() Event {
 //
 // 	enabled: true to enable v-sync, false to deactivate
 func (this *RenderWindow) SetVSyncEnabled(enabled bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setVerticalSyncEnabled(this.cptr, goBool2C(enabled))
 	})
+
 }
 
 // Show or hide the mouse cursor on a render window
 //
 // 	visible: true to show, false to hide
 func (this *RenderWindow) SetMouseCursorVisible(visible bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
 	})
+
 }
 
 // Enable or disable automatic key-repeat
@@ -207,18 +214,20 @@ func (this *RenderWindow) SetMouseCursorVisible(visible bool) {
 //
 // Key repeat is enabled by default.
 func (this *RenderWindow) SetKeyRepeatEnabled(enabled bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setKeyRepeatEnabled(this.cptr, goBool2C(enabled))
 	})
+
 }
 
 // Show or hide a render window
 //
 // 	visible: true to show the window, false to hide it
 func (this *RenderWindow) SetVisible(visible bool) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setVisible(this.cptr, goBool2C(visible))
 	})
+
 }
 
 // Activate or deactivate a render window as the current target for rendering
@@ -227,7 +236,7 @@ func (this *RenderWindow) SetVisible(visible bool) {
 //
 // return True if operation was successful, false otherwise
 func (this *RenderWindow) SetActive(active bool) (success bool) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		success = sfBool2Go(C.sfRenderWindow_setActive(this.cptr, goBool2C(active)))
 	})
 	return
@@ -237,23 +246,25 @@ func (this *RenderWindow) SetActive(active bool) (success bool) {
 //
 // 	limit: Framerate limit, in frames per seconds (use 0 to disable limit)
 func (this *RenderWindow) SetFramerateLimit(limit uint) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setFramerateLimit(this.cptr, C.uint(limit))
 	})
+
 }
 
 // Change the joystick threshold, ie. the value below which no move event will be generated
 //
 // 	threshold: New threshold, in range [0, 100]
 func (this *RenderWindow) SetJoystickThreshold(threshold float32) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		C.sfRenderWindow_setJoystickThreshold(this.cptr, C.float(threshold))
 	})
+
 }
 
 // Display a render window on screen
 func (this *RenderWindow) Display() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfRenderWindow_display(this.cptr)
 	})
 }
@@ -262,14 +273,14 @@ func (this *RenderWindow) Display() {
 //
 // 	color: Fill color
 func (this *RenderWindow) Clear(color Color) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfRenderWindow_clear(this.cptr, color.toC())
 	})
 }
 
 // Get the current active view of a render window
 func (this *RenderWindow) GetView() (view *View) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		view = this.view
 	})
 	return
@@ -284,17 +295,18 @@ func (this *RenderWindow) GetDefaultView() *View {
 //
 // 	view: Pointer to the new view
 func (this *RenderWindow) SetView(view *View) {
-	cstream.Exec(func() {
+	cstream.Enqueue(func() {
 		this.view = view
 		C.sfRenderWindow_setView(this.cptr, view.toCPtr())
 	})
+
 }
 
 // Get the viewport of a view applied to this target
 //
 // 	view: Target view
 func (this *RenderWindow) GetViewport(view *View) (viewport IntRect) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		viewport.fromC(C.sfRenderWindow_getViewport(this.cptr, view.toCPtr()))
 	})
 	return
@@ -330,7 +342,7 @@ func (this *RenderWindow) Draw(drawer Drawer, renderStates RenderStates) {
 //
 // return The converted point, in "world" units
 func (this *RenderWindow) MapPixelToCoords(pos Vector2i, view *View) (coords Vector2f) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		coords.fromC(C.sfRenderWindow_mapPixelToCoords(this.cptr, pos.toC(), view.toCPtr()))
 	})
 	return
@@ -357,7 +369,7 @@ func (this *RenderWindow) MapPixelToCoords(pos Vector2i, view *View) (coords Vec
 //
 // return The converted point, in target coordinates (pixels)
 func (this *RenderWindow) MapCoordsToPixel(pos Vector2f, view *View) (coords Vector2i) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		coords.fromC(C.sfRenderWindow_mapCoordsToPixel(this.cptr, pos.toC(), view.toCPtr()))
 	})
 	return
@@ -380,7 +392,7 @@ func (this *RenderWindow) MapCoordsToPixel(pos Vector2f, view *View) (coords Vec
 // saved and restored). Take a look at the ResetGLStates
 // function if you do so.
 func (this *RenderWindow) PushGLStates() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfRenderWindow_pushGLStates(this.cptr)
 	})
 }
@@ -390,7 +402,7 @@ func (this *RenderWindow) PushGLStates() {
 // See the description of pushGLStates to get a detailed
 // description of these functions.
 func (this *RenderWindow) PopGLStates() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfRenderWindow_popGLStates(this.cptr)
 	})
 }
@@ -403,7 +415,7 @@ func (this *RenderWindow) PopGLStates() {
 // states needed by SFML are set, so that subsequent RenderWindow.Draw
 // calls will work as expected.
 func (this *RenderWindow) ResetGLStates() {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		C.sfRenderWindow_resetGLStates(this.cptr)
 	})
 }

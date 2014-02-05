@@ -63,7 +63,7 @@ func NewFontFromMemory(data []byte) (*Font, error) {
 }
 
 func (this *Font) Copy() (font *Font) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		font = &Font{C.sfFont_copy(this.cptr)}
 		runtime.SetFinalizer(font, (*Font).destroy)
 	})
@@ -83,7 +83,7 @@ func (this *Font) destroy() {
 //
 // return The glyph corresponding to codePoint and characterSize
 func (this *Font) GetGlyph(codePoint uint, characterSize uint32, bold bool) (glyph Glyph) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		glyph.fromC(C.sfFont_getGlyph(this.cptr, C.sfUint32(codePoint), C.uint(characterSize), goBool2C(bold)))
 	})
 	return
@@ -103,7 +103,7 @@ func (this *Font) GetGlyph(codePoint uint, characterSize uint32, bold bool) (gly
 //
 // return Kerning value for first and second, in pixels
 func (this *Font) GetKerning(first uint32, second uint32, characterSize uint) (kerning int) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		kerning = int(C.sfFont_getKerning(this.cptr, C.sfUint32(first), C.sfUint32(second), C.uint(characterSize)))
 	})
 	return
@@ -118,7 +118,7 @@ func (this *Font) GetKerning(first uint32, second uint32, characterSize uint) (k
 //
 // return Line spacing, in pixels
 func (this *Font) GetLineSpacing(characterSize uint) (spacing int) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		spacing = int(C.sfFont_getLineSpacing(this.cptr, C.uint(characterSize)))
 	})
 	return
@@ -133,7 +133,7 @@ func (this *Font) GetLineSpacing(characterSize uint) (spacing int) {
 //
 // Texture containing the glyphs of the requested size
 func (this *Font) GetTexture(characterSize uint) (texture *Texture) {
-	cstream.ExecAndBlock(func() {
+	cstream.Exec(func() {
 		texture = &Texture{C.sfFont_getTexture(this.cptr, C.uint(characterSize))}
 	})
 	return
