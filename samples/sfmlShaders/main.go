@@ -18,20 +18,56 @@ func init() {
 	runtime.LockOSThread()
 }
 
+type MyEventHandler struct{}
+
+func (MyEventHandler) OnEvent(event sf.Event) {
+	switch ev := event.(type) {
+	case sf.EventKeyReleased:
+		switch ev.Code {
+		case sf.KeyEscape:
+			renderWindow.Close()
+		case sf.KeyLeft:
+			if current > 0 {
+				current--
+			} else {
+				current = len(effects) - 1
+			}
+			description.SetString("Current effect: " + effects[current].GetName())
+		case sf.KeyRight:
+			if current < len(effects)-1 {
+				current++
+			} else {
+				current = 0
+			}
+			description.SetString("Current effect: " + effects[current].GetName())
+		}
+	case sf.EventMouseMoved:
+		mousePos = sf.Vector2i{ev.X, ev.Y}
+	case sf.EventClosed:
+		renderWindow.Close()
+	}
+}
+
+var (
+	current      = 0
+	effects      []Effect
+	mousePos     sf.Vector2i
+	renderWindow *sf.RenderWindow
+	description  *sf.Text
+)
+
 func main() {
 	ticker := time.NewTicker(time.Second / 60)
 
 	renderWindow := sf.NewRenderWindow(sf.VideoMode{800, 600, 32}, "Shaders (GoSFML2)", sf.StyleDefault, sf.DefaultContextSettings())
 
 	// Create the effects
-	effects := [...]Effect{&WaveBlur{}, &Pixelate{}, &StormBlink{}, &Edge{}}
+	effects = []Effect{&WaveBlur{}, &Pixelate{}, &StormBlink{}, &Edge{}}
 
 	// Initialize them
 	for _, eff := range effects {
 		eff.Load()
 	}
-
-	current := 0
 
 	// Create the messages background
 	textBackgroundTexture, _ := sf.NewTextureFromFile("resources/text-background.png", nil)
@@ -43,7 +79,7 @@ func main() {
 	font, _ := sf.NewFontFromFile("resources/sansation.ttf")
 
 	// Create the description text
-	description, _ := sf.NewText(font)
+	description, _ = sf.NewText(font)
 	description.SetString("Current effect: " + effects[current].GetName())
 	description.SetCharacterSize(20)
 	description.SetColor(sf.Color{80, 80, 80, 255})
@@ -56,40 +92,14 @@ func main() {
 	instructions.SetColor(sf.Color{80, 80, 80, 255})
 	instructions.SetPosition(sf.Vector2f{280, 555})
 
-	var timeAccu time.Duration = 0
-	var mousePos sf.Vector2i
+	timeAccu := time.Duration(0)
+	eventHandler := MyEventHandler{}
 
 	for renderWindow.IsOpen() {
 		select {
 		case <-ticker.C:
-			//poll events
-			for event := renderWindow.PollEvent(); event != nil; event = renderWindow.PollEvent() {
-				switch ev := event.(type) {
-				case sf.EventKeyReleased:
-					switch ev.Code {
-					case sf.KeyEscape:
-						renderWindow.Close()
-					case sf.KeyLeft:
-						if current > 0 {
-							current--
-						} else {
-							current = len(effects) - 1
-						}
-						description.SetString("Current effect: " + effects[current].GetName())
-					case sf.KeyRight:
-						if current < len(effects)-1 {
-							current++
-						} else {
-							current = 0
-						}
-						description.SetString("Current effect: " + effects[current].GetName())
-					}
-				case sf.EventMouseMoved:
-					mousePos = sf.Vector2i{ev.X, ev.Y}
-				case sf.EventClosed:
-					renderWindow.Close()
-				}
-			}
+			//dispatch events
+			renderWindow.DispatchEvents(eventHandler)
 
 			timeAccu += time.Second / 60
 
