@@ -137,34 +137,34 @@ func (this *Window) destroy() {
 	globalMutex.Unlock()
 }
 
-// Get the event on top of event queue of a window, if any, and pop it
-//
-// returns nil if there are no events left.
-func (this *Window) PollEvent() Event {
-	cEvent := C.sfEvent{}
-
+// Call the event handler for each event in the event queue
+func (this *Window) DispatchEvents(handlers ...EventHandler) {
 	globalMutex.Lock()
-	hasEvent := C.sfWindow_pollEvent(this.cptr, &cEvent)
-	globalMutex.Unlock()
 
-	if hasEvent != 0 {
-		return handleEvent(&cEvent)
+	cEvent := C.sfEvent{}
+	hasEvent := C.sfWindow_pollEvent(this.cptr, &cEvent)
+	for ; hasEvent != 0; hasEvent = C.sfWindow_pollEvent(this.cptr, &cEvent) {
+		for _, handler := range handlers {
+			handler.OnEvent(handleEvent(&cEvent))
+		}
 	}
-	return nil
+
+	globalMutex.Unlock()
 }
 
-// Wait for an event and return it
-func (this *Window) WaitEvent() Event {
-	cEvent := C.sfEvent{}
-
+// Wait for an event and call the event handler
+func (this *Window) WaitDispatchEvent(handlers ...EventHandler) {
 	globalMutex.Lock()
-	hasError := C.sfWindow_waitEvent(this.cptr, &cEvent)
-	globalMutex.Unlock()
 
+	cEvent := C.sfEvent{}
+	hasError := C.sfWindow_waitEvent(this.cptr, &cEvent)
 	if hasError != 0 {
-		return handleEvent(&cEvent)
+		for _, handler := range handlers {
+			handler.OnEvent(handleEvent(&cEvent))
+		}
 	}
-	return nil
+
+	globalMutex.Unlock()
 }
 
 // Change the title of a window

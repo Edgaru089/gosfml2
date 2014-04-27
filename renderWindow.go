@@ -19,8 +19,8 @@ import (
 /////////////////////////////////////
 
 type RenderWindow struct {
-	cptr *C.sfRenderWindow
-	view *View
+	cptr    *C.sfRenderWindow
+	view    *View
 }
 
 /////////////////////////////////////
@@ -129,34 +129,34 @@ func (this *RenderWindow) SetIcon(width, height uint, data []byte) error {
 	return errors.New("SetIcon: Slice length does not match specified dimensions")
 }
 
-// Get the event on top of event queue of a render window, if any, and pop it
-//
-// returns nil if there are no events left.
-func (this *RenderWindow) PollEvent() Event {
-	cEvent := C.sfEvent{}
-
+// Call the event handler for each event in the event queue
+func (this *RenderWindow) DispatchEvents(handlers ...EventHandler) {
 	globalMutex.Lock()
-	hasEvent := C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
-	globalMutex.Unlock()
 
-	if hasEvent != 0 {
-		return handleEvent(&cEvent)
+	cEvent := C.sfEvent{}
+	hasEvent := C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
+	for ; hasEvent != 0; hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent) {
+		for _, handler := range handlers {
+			handler.OnEvent(handleEvent(&cEvent))
+		}
 	}
-	return nil
+
+	globalMutex.Unlock()
 }
 
-// Wait for an event and return it
-func (this *RenderWindow) WaitEvent() Event {
-	cEvent := C.sfEvent{}
-
+// Wait for an event and call the event handler
+func (this *RenderWindow) WaitDispatchEvent(handlers ...EventHandler) {
 	globalMutex.Lock()
-	hasError := C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
-	globalMutex.Unlock()
 
+	cEvent := C.sfEvent{}
+	hasError := C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
 	if hasError != 0 {
-		return handleEvent(&cEvent)
+		for _, handler := range handlers {
+			handler.OnEvent(handleEvent(&cEvent))
+		}
 	}
-	return nil
+
+	globalMutex.Unlock()
 }
 
 // Enable / disable vertical synchronization on a render window
