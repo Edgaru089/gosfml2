@@ -56,9 +56,7 @@ type Event interface {
 	Type() EventType
 }
 
-type EventHandler interface {
-	OnEvent(event Event)
-}
+type EventHandler func(event Event)
 
 ///////////////////////////////////////////////////////////////
 //	EmptyEvents

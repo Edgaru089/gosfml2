@@ -137,7 +137,7 @@ func (this *RenderWindow) DispatchEvents(handlers ...EventHandler) {
 	hasEvent := C.sfRenderWindow_pollEvent(this.cptr, &cEvent)
 	for ; hasEvent != 0; hasEvent = C.sfRenderWindow_pollEvent(this.cptr, &cEvent) {
 		for _, handler := range handlers {
-			handler.OnEvent(handleEvent(&cEvent))
+			handler(handleEvent(&cEvent))
 		}
 	}
 
@@ -152,7 +152,7 @@ func (this *RenderWindow) WaitDispatchEvent(handlers ...EventHandler) {
 	hasError := C.sfRenderWindow_waitEvent(this.cptr, &cEvent)
 	if hasError != 0 {
 		for _, handler := range handlers {
-			handler.OnEvent(handleEvent(&cEvent))
+			handler(handleEvent(&cEvent))
 		}
 	}
 
