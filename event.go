@@ -24,19 +24,23 @@ import "C"
 type EventType int
 
 const (
-	EventTypeClosed                 EventType = C.sfEvtClosed
-	EventTypeResized                EventType = C.sfEvtResized
-	EventTypeLostFocus              EventType = C.sfEvtLostFocus
-	EventTypeGainedFocus            EventType = C.sfEvtGainedFocus
-	EventTypeTextEntered            EventType = C.sfEvtTextEntered
-	EventTypeKeyPressed             EventType = C.sfEvtKeyPressed
-	EventTypeKeyReleased            EventType = C.sfEvtKeyReleased
-	EventTypeMouseWheelMoved        EventType = C.sfEvtMouseWheelMoved
-	EventTypeMouseButtonPressed     EventType = C.sfEvtMouseButtonPressed
-	EventTypeMouseButtonReleased    EventType = C.sfEvtMouseButtonReleased
-	EventTypeMouseMoved             EventType = C.sfEvtMouseMoved
-	EventTypeMouseEntered           EventType = C.sfEvtMouseEntered
-	EventTypeMouseLeft              EventType = C.sfEvtMouseLeft
+	//Window
+	EventTypeClosed      EventType = C.sfEvtClosed
+	EventTypeResized     EventType = C.sfEvtResized
+	EventTypeLostFocus   EventType = C.sfEvtLostFocus
+	EventTypeGainedFocus EventType = C.sfEvtGainedFocus
+	//Keyboard
+	EventTypeTextEntered EventType = C.sfEvtTextEntered
+	EventTypeKeyPressed  EventType = C.sfEvtKeyPressed
+	EventTypeKeyReleased EventType = C.sfEvtKeyReleased
+	//Mouse
+	EventTypeMouseWheelMoved     EventType = C.sfEvtMouseWheelMoved
+	EventTypeMouseButtonPressed  EventType = C.sfEvtMouseButtonPressed
+	EventTypeMouseButtonReleased EventType = C.sfEvtMouseButtonReleased
+	EventTypeMouseMoved          EventType = C.sfEvtMouseMoved
+	EventTypeMouseEntered        EventType = C.sfEvtMouseEntered
+	EventTypeMouseLeft           EventType = C.sfEvtMouseLeft
+	//Joystick
 	EventTypeJoystickButtonPressed  EventType = C.sfEvtJoystickButtonPressed
 	EventTypeJoystickButtonReleased EventType = C.sfEvtJoystickButtonReleased
 	EventTypeJoystickMoved          EventType = C.sfEvtJoystickMoved
@@ -45,12 +49,14 @@ const (
 )
 
 /////////////////////////////////////
-///		INTERFACES
+///		TYPES
 /////////////////////////////////////
 
 type Event interface {
 	Type() EventType
 }
+
+type EventHandler func(event Event)
 
 ///////////////////////////////////////////////////////////////
 //	EmptyEvents
@@ -95,17 +101,17 @@ func (EventClosed) Type() EventType {
 
 type eventKey struct {
 	Code    KeyCode //< Code of the key that has been pressed
-	Alt     int     //< Is the Alt key pressed?
-	Control int     //< Is the Control key pressed?
-	Shift   int     //< Is the Shift key pressed?
-	System  int     //< Is the System key pressed?
+	Alt     bool    //< Is the Alt key pressed?
+	Control bool    //< Is the Control key pressed?
+	Shift   bool    //< Is the Shift key pressed?
+	System  bool    //< Is the System key pressed?
 }
 
 type EventKeyPressed eventKey
 type EventKeyReleased eventKey
 
 func newKeyEventFromC(ev *C.sfKeyEvent) eventKey {
-	return eventKey{Code: KeyCode(ev.code), Alt: int(ev.alt), Control: int(ev.control), Shift: int(ev.shift), System: int(ev.system)}
+	return eventKey{Code: KeyCode(ev.code), Alt: sfBool2Go(ev.alt), Control: sfBool2Go(ev.control), Shift: sfBool2Go(ev.shift), System: sfBool2Go(ev.system)}
 }
 
 func (EventKeyPressed) Type() EventType {
