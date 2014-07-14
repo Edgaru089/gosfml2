@@ -148,7 +148,9 @@ func (this *VertexArray) GetBounds() FloatRect {
 
 // Draws a VertexArray on a render target
 //
-// Note: Use RenderTarget.DrawPrimitives to draw only a subset of its vertices
+// Note: 
+// Use RenderTarget.DrawPrimitives to draw only a subset of its vertices like:
+// RenderTarget.DrawPrimitives(VertexArray.Vertices[from:to], VertexArray.PrimitiveType, DefaultRenderStates())
 func (this *VertexArray) Draw(target RenderTarget, renderStates RenderStates) {
 	if target != nil {
 		target.DrawPrimitives(this.Vertices, this.PrimitiveType, renderStates)
