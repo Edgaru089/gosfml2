@@ -19,8 +19,8 @@ import (
 /////////////////////////////////////
 
 type RenderWindow struct {
-	cptr    *C.sfRenderWindow
-	view    *View
+	cptr *C.sfRenderWindow
+	view *View
 }
 
 /////////////////////////////////////
@@ -126,7 +126,7 @@ func (this *RenderWindow) SetIcon(width, height uint, data []byte) error {
 		C.sfRenderWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
 		return nil
 	}
-	return errors.New("SetIcon: Slice length does not match specified dimensions")
+	return errors.New("SetIcon: len(data) does not match specified dimensions (expected width*height*4 bytes rgba)")
 }
 
 // Call the event handler for each event in the event queue

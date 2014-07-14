@@ -59,14 +59,10 @@ func NewImageFromFile(file string) (*Image, error) {
 //
 // 	width:  Width of the image
 // 	height: Height of the image
-func NewImage(width, height uint) (*Image, error) {
-	if cptr := C.sfImage_create(C.uint(width), C.uint(height)); cptr != nil {
-		image := &Image{cptr}
-		runtime.SetFinalizer(image, (*Image).destroy)
-		return image, nil
-	}
-
-	return nil, genericError
+func NewImage(width, height uint) *Image {
+	image := &Image{C.sfImage_create(C.uint(width), C.uint(height))}
+	runtime.SetFinalizer(image, (*Image).destroy)
+	return image
 }
 
 // Create an image and fill it with a unique color
@@ -74,14 +70,10 @@ func NewImage(width, height uint) (*Image, error) {
 // 	width:  Width of the image
 // 	height: Height of the image
 // 	color:  Fill color
-func NewImageFromColor(width, height uint, color Color) (*Image, error) {
-	if cptr := C.sfImage_createFromColor(C.uint(width), C.uint(height), color.toC()); cptr != nil {
-		image := &Image{cptr}
-		runtime.SetFinalizer(image, (*Image).destroy)
-		return image, nil
-	}
-
-	return nil, genericError
+func NewImageFromColor(width, height uint, color Color) *Image {
+	image := &Image{C.sfImage_createFromColor(C.uint(width), C.uint(height), color.toC())}
+	runtime.SetFinalizer(image, (*Image).destroy)
+	return image
 }
 
 // Create an image from an array of pixels
@@ -95,11 +87,16 @@ func NewImageFromColor(width, height uint, color Color) (*Image, error) {
 // 	height: Height of the image
 // 	pixels: Slice of pixels to copy to the image
 func NewImageFromPixels(width, height uint, data []byte) (*Image, error) {
-	if len(data) == 0 {
-		return nil, errors.New("NewImageFromPixels: len(data)==0")
+	if uint(len(data)) != width*height*4 {
+		return nil, errors.New("NewImageFromPixels: len(data) does not match dimensions (expected width*height*4 bytes rgba)")
 	}
 
-	if cptr := C.sfImage_createFromPixels(C.uint(width), C.uint(height), (*C.sfUint8)(&data[0])); cptr != nil {
+	var ptr *C.sfUint8 = nil
+	if len(data) > 0 {
+		ptr = (*C.sfUint8)(&data[0])
+	}
+
+	if cptr := C.sfImage_createFromPixels(C.uint(width), C.uint(height), ptr); cptr != nil {
 		image := &Image{cptr}
 		runtime.SetFinalizer(image, (*Image).destroy)
 		return image, nil

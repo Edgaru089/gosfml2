@@ -84,18 +84,16 @@ func NewSoundBufferFromMemory(data []byte) (*SoundBuffer, error) {
 // 	samples:      Slice of samples
 // 	channelCount: Number of channels (1 = mono, 2 = stereo, ...)
 // 	sampleRate:   Sample rate (number of samples to play per second)
-func NewSoundBufferFromSamples(samples []int16, channelCount, sampleRate uint) (*SoundBuffer, error) {
-	if len(samples) == 0 {
-		return nil, errors.New("NewSoundBufferFromSamples: len(data)==0")
+func NewSoundBufferFromSamples(samples []int16, channelCount, sampleRate uint) *SoundBuffer {
+	ptr := (*C.sfInt16)(nil)
+	if len(samples) > 0 {
+		ptr = (*C.sfInt16)(unsafe.Pointer(&samples[0]))
 	}
 
-	if cptr := C.sfSoundBuffer_createFromSamples((*C.sfInt16)(unsafe.Pointer(&samples[0])), C.size_t(len(samples)), C.uint(channelCount), C.uint(sampleRate)); cptr != nil {
-		buffer := &SoundBuffer{cptr}
-		runtime.SetFinalizer(buffer, (*SoundBuffer).destroy)
+	buffer := &SoundBuffer{C.sfSoundBuffer_createFromSamples(ptr, C.size_t(len(samples)), C.uint(channelCount), C.uint(sampleRate))}
+	runtime.SetFinalizer(buffer, (*SoundBuffer).destroy)
 
-		return buffer, nil
-	}
-	return nil, genericError
+	return buffer
 }
 
 // Create a new sound buffer by copying an existing one

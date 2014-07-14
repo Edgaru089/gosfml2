@@ -24,15 +24,11 @@ type SoundBufferRecorder struct {
 /////////////////////////////////////
 
 /// Create a new sound buffer recorder
-func NewSoundBufferRecorder() (*SoundBufferRecorder, error) {
-	if cptr := C.sfSoundBufferRecorder_create(); cptr != nil {
-		soundBufferRecorder := &SoundBufferRecorder{cptr}
-		runtime.SetFinalizer(soundBufferRecorder, (*SoundBufferRecorder).destroy)
+func NewSoundBufferRecorder() *SoundBufferRecorder {
+	soundBufferRecorder := &SoundBufferRecorder{C.sfSoundBufferRecorder_create()}
+	runtime.SetFinalizer(soundBufferRecorder, (*SoundBufferRecorder).destroy)
 
-		return soundBufferRecorder, nil
-	}
-
-	return nil, genericError
+	return soundBufferRecorder
 }
 
 // Destroy an existing SoundBufferRecorder

@@ -46,9 +46,9 @@ type Vertex struct {
 /////////////////////////////////////
 
 // Create a new vertex array
-func NewVertexArray() (*VertexArray, error) {
+func NewVertexArray() *VertexArray {
 	vertexArray := &VertexArray{}
-	return vertexArray, nil
+	return vertexArray
 }
 
 // Copy an existing vertex array

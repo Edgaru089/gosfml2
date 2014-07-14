@@ -26,7 +26,7 @@ var (
 	globalMutex sync.Mutex
 
 	//As SFML does not provide useful error codes, we just return a generic error message
-	genericError = errors.New("Error: See stderr for more details")
+	genericError = errors.New("See stderr for more details")
 )
 
 /////////////////////////////////////

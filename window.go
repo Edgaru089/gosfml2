@@ -186,7 +186,7 @@ func (this *Window) SetIcon(width, height uint, data []byte) error {
 		C.sfWindow_setIcon(this.cptr, C.uint(width), C.uint(height), (*C.sfUint8)(&data[0]))
 		return nil
 	}
-	return errors.New("SetIcon: Slice length does not match specified dimensions")
+	return errors.New("SetIcon: len(data) does not match specified dimensions (expected width*height*4 bytes rgba")
 }
 
 // Limit the framerate to a maximum fixed frequency for a window
