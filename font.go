@@ -85,7 +85,7 @@ func (this *Font) destroy() {
 //
 // return The glyph corresponding to codePoint and characterSize
 func (this *Font) GetGlyph(codePoint uint, characterSize uint32, bold bool) (glyph Glyph) {
-	glyph.fromC(C.sfFont_getGlyph(this.cptr, C.sfUint32(codePoint), C.uint(characterSize), goBool2C(bold)))
+	glyph.fromC(C.sfFont_getGlyph(this.cptr, C.sfUint32(codePoint), C.uint(characterSize), goBool2C(bold), C.float(0)))
 	return
 }
 

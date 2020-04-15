@@ -158,6 +158,19 @@ func (this *Texture) UpdateFromPixels(pixels []byte, width, height, x, y uint) {
 	}
 }
 
+// Update a texture from an array of pixels
+//
+// 	pixels:  Slice of pixels to copy to the texture
+// 	width:   Width of the pixel region contained in pixels
+// 	height:  Height of the pixel region contained in pixels
+// 	x:       X offset in the texture where to copy the source pixels
+// 	y:       Y offset in the texture where to copy the source pixels
+func (this *Texture) UpdateFromPixelsUnsafe(pixels unsafe.Pointer, width, height, x, y uint) {
+	if pixels != nil {
+		C.sfTexture_updateFromPixels(this.cptr, (*C.sfUint8)(pixels), C.uint(width), C.uint(height), C.uint(x), C.uint(y))
+	}
+}
+
 // Enable or disable the smooth filter on a texture
 func (this *Texture) SetSmooth(smooth bool) {
 	C.sfTexture_setSmooth(this.cptr, goBool2C(smooth))
@@ -190,6 +203,11 @@ func (this *Texture) SetRepeated(repeated bool) {
 // Tell whether a texture is repeated or not
 func (this *Texture) IsRepeated() bool {
 	return sfBool2Go(C.sfTexture_isRepeated(this.cptr))
+}
+
+// Get the underlying native handle of the texture
+func (this *Texture) GetNativeHandle() uintptr {
+	return uintptr(C.sfTexture_getNativeHandle(this.cptr))
 }
 
 // Get the maximum texture size allowed

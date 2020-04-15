@@ -308,7 +308,7 @@ func handleEvent(cEvent *C.sfEvent) (ev Event) {
 	case EventTypeJoystickConnected:
 		ev = (EventJoystickConnected)(newJoystickConnectEventFromC(C.getJoystickConnectEvent(cEvent)))
 	default:
-		panic("Unknown event")
+		//panic("Unknown event")
 	}
 	return
 }

@@ -53,7 +53,7 @@ func NewShaderFromFile(vertexShaderFile, fragmentShaderFile string) (*Shader, er
 		defer C.free(unsafe.Pointer(cFShader))
 	}
 
-	if cptr := C.sfShader_createFromFile(cVShader, cFShader); cptr != nil {
+	if cptr := C.sfShader_createFromFile(cVShader, (*C.char)(nil), cFShader); cptr != nil {
 		shader := &Shader{cptr}
 		runtime.SetFinalizer(shader, (*Shader).destroy)
 
@@ -91,7 +91,7 @@ func NewShaderFromMemory(vertexShader, fragmentShader string) (*Shader, error) {
 		defer C.free(unsafe.Pointer(cFShader))
 	}
 
-	if cptr := C.sfShader_createFromMemory(cVShader, cFShader); cptr != nil {
+	if cptr := C.sfShader_createFromMemory(cVShader, (*C.char)(nil), cFShader); cptr != nil {
 		shader := &Shader{cptr}
 		runtime.SetFinalizer(shader, (*Shader).destroy)
 		return shader, nil
