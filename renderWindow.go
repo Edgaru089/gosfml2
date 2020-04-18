@@ -175,6 +175,17 @@ func (this *RenderWindow) SetMouseCursorVisible(visible bool) {
 	C.sfRenderWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
 }
 
+// SetMouseCursor sets the displayed mouse cursor of a window
+//
+// To keep things simple, when cursor is nil, the default arrow cursor is set.
+func (win *RenderWindow) SetMouseCursor(cursor *Cursor) {
+	if cursor == nil {
+		C.sfRenderWindow_setMouseCursor(win.cptr, cursorDefault.cptr)
+	} else {
+		C.sfRenderWindow_setMouseCursor(win.cptr, cursor.cptr)
+	}
+}
+
 // Enable or disable automatic key-repeat
 //
 // If key repeat is enabled, you will receive repeated

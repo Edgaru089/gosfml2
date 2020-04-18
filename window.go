@@ -53,6 +53,7 @@ type SystemWindow interface {
 	SetTitle(string)
 	SetIcon(uint, uint, []byte) error
 	SetMouseCursorVisible(bool)
+	SetMouseCursor(*Cursor)
 	SetActive(bool) bool
 }
 
@@ -247,6 +248,19 @@ func (this *Window) SetActive(active bool) bool {
 // 	visible: true to show, false to hide
 func (this *Window) SetMouseCursorVisible(visible bool) {
 	C.sfWindow_setMouseCursorVisible(this.cptr, goBool2C(visible))
+}
+
+var cursorDefault = NewCursorFromSystem(CursorArrow)
+
+// SetMouseCursor sets the displayed mouse cursor of a window
+//
+// To keep things simple, when cursor is nil, the default arrow cursor is set.
+func (win *Window) SetMouseCursor(cursor *Cursor) {
+	if cursor == nil {
+		C.sfWindow_setMouseCursor(win.cptr, cursorDefault.cptr)
+	} else {
+		C.sfWindow_setMouseCursor(win.cptr, cursor.cptr)
+	}
 }
 
 // Check whether the window has the input focus
