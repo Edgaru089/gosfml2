@@ -158,7 +158,7 @@ func (this *Texture) UpdateFromPixels(pixels []byte, width, height, x, y uint) {
 	}
 }
 
-// Update a texture from an array of pixels
+// Update a texture from an array of pixels, pointed by unsafe.Pointer
 //
 // 	pixels:  Slice of pixels to copy to the texture
 // 	width:   Width of the pixel region contained in pixels
